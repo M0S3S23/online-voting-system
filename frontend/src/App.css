@@ -1,0 +1,17 @@
+.hero-section {
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+}
+
+.card {
+  transition: transform 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+}
+
+.homepage {
+  font-family: 'Roboto', sans-serif;
+}
