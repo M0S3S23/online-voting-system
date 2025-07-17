@@ -14,6 +14,7 @@ import {
   ClipboardCheck,
   Lock
 } from 'react-bootstrap-icons';
+import Footer from '../components/Footer';
 
 const HomePage = () => {
   // Data for features grid
@@ -227,51 +228,7 @@ const HomePage = () => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-dark text-white py-5">
-        <Container>
-          <Row>
-            <Col md={4}>
-              <h4 className="mb-4">VoteSecure</h4>
-              <p>The most trusted digital voting platform for organizations and governments.</p>
-              <div className="d-flex gap-3">
-                <a href="#facebook" className="text-white"><i className="bi bi-facebook"></i></a>
-                <a href="#twitter" className="text-white"><i className="bi bi-twitter"></i></a>
-                <a href="#linkedin" className="text-white"><i className="bi bi-linkedin"></i></a>
-              </div>
-            </Col>
-            <Col md={2}>
-              <h5 className="mb-3">Quick Links</h5>
-              <ul className="list-unstyled">
-                <li className="mb-2"><a href="#home" className="text-white text-decoration-none">Home</a></li>
-                <li className="mb-2"><a href="#about" className="text-white text-decoration-none">About</a></li>
-                <li className="mb-2"><a href="#elections" className="text-white text-decoration-none">Elections</a></li>
-                <li className="mb-2"><a href="#contact" className="text-white text-decoration-none">Contact</a></li>
-              </ul>
-            </Col>
-            <Col md={3}>
-              <h5 className="mb-3">Security</h5>
-              <ul className="list-unstyled">
-                <li className="mb-2"><a href="#privacy" className="text-white text-decoration-none">Privacy Policy</a></li>
-                <li className="mb-2"><a href="#terms" className="text-white text-decoration-none">Terms of Service</a></li>
-                <li className="mb-2"><a href="#security" className="text-white text-decoration-none">Security Overview</a></li>
-              </ul>
-            </Col>
-            <Col md={3}>
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <ShieldLock size={24} className="text-success" />
-                <span>SSL Secured Connection</span>
-              </div>
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <Lock size={24} className="text-success" />
-                <span>256-bit Encryption</span>
-              </div>
-              <p className="small text-muted mt-4">
-                © 2023 VoteSecure. All rights reserved.
-              </p>
-            </Col>
-          </Row>
-        </Container>
-      </footer>
+      <Footer />
     </div>
   );
 };
