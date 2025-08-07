@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Container, Card, Form, Button, Row, Col, Alert } from 'react-bootstrap';
 import { Person, GeoAlt, ShieldLock, InfoCircle, ArrowLeft } from 'react-bootstrap-icons';
 import { Link } from 'react-router-dom';
+import Header from '../components/Header';
 
 const RegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -36,15 +37,7 @@ const RegisterPage = () => {
 
   return (
     <div className="register-page bg-light">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-dark bg-dark">
-        <Container>
-          <Link to="/" className="navbar-brand fw-bold">VoteSecure</Link>
-          <div className="d-flex">
-            <Link to="/signin" className="btn btn-outline-light">Sign In</Link>
-          </div>
-        </Container>
-      </nav>
+      <Header />
 
       {/* Main Content */}
       <Container className="py-5">

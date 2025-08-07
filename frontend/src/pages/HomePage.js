@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar, Nav, Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { 
   Building,
   ShieldLock,
@@ -14,6 +15,7 @@ import {
   ClipboardCheck,
   Lock
 } from 'react-bootstrap-icons';
+import Header from '../components/Header';
 import Footer from '../components/Footer';
 
 const HomePage = () => {
@@ -53,21 +55,8 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
-      {/* Navigation Bar */}
-        <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
-            <Container>
-                <Navbar.Brand href="#home">
-                <span className="fw-bold fs-5 text-primary">VoteSecure</span> {/* Added text-primary for blue color */}
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-                <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-end"> {/* Use justify-content-end to push content to the right */}
-                <Nav>
-                    <Button variant="outline-primary" href="SignIn" className="me-2">Sign In</Button> {/* Outline blue button with margin-right */}
-                    <Button variant="primary" href="#register">Register to Vote</Button> {/* Solid blue button */}
-                </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+      {/* Header Component */}
+      <Header />
 
       {/* Hero Section */}
       <section className="hero-section py-5" style={{ 
@@ -85,7 +74,7 @@ const HomePage = () => {
               </p>
               <div className="d-flex gap-3">
                 <Button variant="primary" size="lg">View Active Elections</Button>
-                <Button variant="outline-primary" size="lg">Register to Vote</Button>
+                <Button as={Link} to={'/register'} variant="outline-primary" size="lg">Register to Vote</Button>
               </div>
             </Col>
             <Col md={6}>
@@ -221,7 +210,7 @@ const HomePage = () => {
         <Container className="text-center">
           <h2 className="mb-4">Ready to participate in our secure elections?</h2>
           <div className="d-flex justify-content-center gap-3">
-            <Button variant="light" size="lg">Register Now</Button>
+            <Button as={Link} to={'/register'} variant="light" size="lg">Register Now</Button>
             <Button variant="outline-light" size="lg">View Elections</Button>
           </div>
         </Container>

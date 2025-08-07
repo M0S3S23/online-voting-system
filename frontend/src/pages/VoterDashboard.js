@@ -1,4 +1,5 @@
 import React from 'react';
+import {Link} from 'react-router-dom';
 import { Container, Card, Row, Col, Button, ListGroup, Badge } from 'react-bootstrap';
 import { 
   PersonCircle, 
@@ -61,7 +62,7 @@ const VoterDashboard = () => {
           <div className="d-flex align-items-center">
             <Nav className="me-4">
               <Nav.Link className="text-white">Dashboard</Nav.Link>
-              <Nav.Link className="text-white">Elections</Nav.Link>
+              <Nav.Link as={Link} to={'/elections'} className="text-white">Elections</Nav.Link>
             </Nav>
             <div className="dropdown">
               <button className="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -123,7 +124,7 @@ const VoterDashboard = () => {
                   <h5 className="mb-1">Vote Now</h5>
                   <p className="mb-0 small">Cast your vote in active elections</p>
                 </div>
-                <Button variant="light" size="sm" className="ms-auto">
+                <Button as={Link} to={'/elections'} variant="light" size="sm" className="ms-auto">
                   Go <ArrowRight size={16} />
                 </Button>
               </Card.Body>
@@ -173,7 +174,7 @@ const VoterDashboard = () => {
                       </Col>
                     ))}
                   </Row>
-                  <Button variant="primary">Vote Now</Button>
+                  <Button as={Link} to={'/elections/:id/vote'} variant="primary">Vote Now</Button>
                 </Card.Body>
               </Card>
             ))}
