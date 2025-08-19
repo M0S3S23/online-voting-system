@@ -1,5 +1,6 @@
 import React from 'react';
 import { Navbar, Nav, Container, Row, Col, Card, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { 
   Building,
   ShieldLock,
@@ -14,6 +15,8 @@ import {
   ClipboardCheck,
   Lock
 } from 'react-bootstrap-icons';
+import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const HomePage = () => {
   // Data for features grid
@@ -52,21 +55,8 @@ const HomePage = () => {
 
   return (
     <div className="homepage">
-      {/* Navigation Bar */}
-        <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
-            <Container>
-                <Navbar.Brand href="#home">
-                <span className="fw-bold fs-5 text-primary">VoteSecure</span> {/* Added text-primary for blue color */}
-                </Navbar.Brand>
-                <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-                <Navbar.Collapse id="responsive-navbar-nav" className="justify-content-end"> {/* Use justify-content-end to push content to the right */}
-                <Nav>
-                    <Button variant="outline-primary" href="SignIn" className="me-2">Sign In</Button> {/* Outline blue button with margin-right */}
-                    <Button variant="primary" href="#register">Register to Vote</Button> {/* Solid blue button */}
-                </Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+      {/* Header Component */}
+      <Header />
 
       {/* Hero Section */}
       <section className="hero-section py-5" style={{ 
@@ -84,7 +74,7 @@ const HomePage = () => {
               </p>
               <div className="d-flex gap-3">
                 <Button variant="primary" size="lg">View Active Elections</Button>
-                <Button variant="outline-primary" size="lg">Register to Vote</Button>
+                <Button as={Link} to={'/register'} variant="outline-primary" size="lg">Register to Vote</Button>
               </div>
             </Col>
             <Col md={6}>
@@ -220,58 +210,14 @@ const HomePage = () => {
         <Container className="text-center">
           <h2 className="mb-4">Ready to participate in our secure elections?</h2>
           <div className="d-flex justify-content-center gap-3">
-            <Button variant="light" size="lg">Register Now</Button>
+            <Button as={Link} to={'/register'} variant="light" size="lg">Register Now</Button>
             <Button variant="outline-light" size="lg">View Elections</Button>
           </div>
         </Container>
       </section>
 
       {/* Footer */}
-      <footer className="bg-dark text-white py-5">
-        <Container>
-          <Row>
-            <Col md={4}>
-              <h4 className="mb-4">VoteSecure</h4>
-              <p>The most trusted digital voting platform for organizations and governments.</p>
-              <div className="d-flex gap-3">
-                <a href="#facebook" className="text-white"><i className="bi bi-facebook"></i></a>
-                <a href="#twitter" className="text-white"><i className="bi bi-twitter"></i></a>
-                <a href="#linkedin" className="text-white"><i className="bi bi-linkedin"></i></a>
-              </div>
-            </Col>
-            <Col md={2}>
-              <h5 className="mb-3">Quick Links</h5>
-              <ul className="list-unstyled">
-                <li className="mb-2"><a href="#home" className="text-white text-decoration-none">Home</a></li>
-                <li className="mb-2"><a href="#about" className="text-white text-decoration-none">About</a></li>
-                <li className="mb-2"><a href="#elections" className="text-white text-decoration-none">Elections</a></li>
-                <li className="mb-2"><a href="#contact" className="text-white text-decoration-none">Contact</a></li>
-              </ul>
-            </Col>
-            <Col md={3}>
-              <h5 className="mb-3">Security</h5>
-              <ul className="list-unstyled">
-                <li className="mb-2"><a href="#privacy" className="text-white text-decoration-none">Privacy Policy</a></li>
-                <li className="mb-2"><a href="#terms" className="text-white text-decoration-none">Terms of Service</a></li>
-                <li className="mb-2"><a href="#security" className="text-white text-decoration-none">Security Overview</a></li>
-              </ul>
-            </Col>
-            <Col md={3}>
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <ShieldLock size={24} className="text-success" />
-                <span>SSL Secured Connection</span>
-              </div>
-              <div className="d-flex align-items-center gap-2 mb-3">
-                <Lock size={24} className="text-success" />
-                <span>256-bit Encryption</span>
-              </div>
-              <p className="small text-muted mt-4">
-                © 2023 VoteSecure. All rights reserved.
-              </p>
-            </Col>
-          </Row>
-        </Container>
-      </footer>
+      <Footer />
     </div>
   );
 };

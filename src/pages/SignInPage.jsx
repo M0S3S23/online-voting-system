@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Row, Col } from 'react-bootstrap';
 import { ShieldLock, Eye, EyeSlash, Lock } from 'react-bootstrap-icons';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -9,6 +9,8 @@ const SignInPage = () => {
     email: '',
     password: ''
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({
@@ -21,6 +23,7 @@ const SignInPage = () => {
     e.preventDefault();
     // Handle sign in logic here
     console.log('Signing in with:', formData);
+    navigate("/vdashboard");
   };
 
   return (
