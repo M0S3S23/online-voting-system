@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "bootstrap": "^5.3.7",
+    "connect-mongo": "^5.1.0",
+    "cors": "^2.8.5",
     "react": "^19.1.1",
     "react-bootstrap": "^2.10.10",
     "react-bootstrap-icons": "^1.11.6",
