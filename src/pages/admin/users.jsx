@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Container, Card, Table, Button, Alert } from "react-bootstrap";
-import { Trash, PencilSquare } from "react-bootstrap-icons";
+import { Card, Table, Button, Alert } from "react-bootstrap";
+import { Trash } from "react-bootstrap-icons";
+import AdminLayout from "../../components/admin/AdminLayout";
 
 const AdminUsersPage = () => {
   const [users, setUsers] = useState([]);
@@ -8,44 +9,56 @@ const AdminUsersPage = () => {
 
   // Fetch all users from backend
   useEffect(() => {
-    fetch("http://localhost:3000/admin/users/all", {
-      method: "GET",
-      credentials: "include", // send session cookie
-    })
-      .then(async (res) => {
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch("http://localhost:3000/admin/users/all", {
+          method: "GET",
+          credentials: "include", // send session cookie
+        });
+
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
           throw new Error(errData.message || "Failed to fetch users");
         }
-        return res.json();
-      })
-      .then((data) => setUsers(data.users))
-      .catch((err) => setError(err.message));
+
+        const data = await res.json();
+        setUsers(data); // data is array of users
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchUsers();
   }, []);
 
   // Toggle admin status
-  const toggleAdmin = (userId) => {
-    fetch(`http://localhost:3000/admin/users/${userId}/toggle-admin`, {
-      method: "PATCH",
-      credentials: "include",
-    })
-      .then(async (res) => {
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.message || "Failed to update user");
+  const toggleAdmin = async (userId) => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/admin/users/${userId}/toggle-admin`,
+        {
+          method: "PATCH",
+          credentials: "include",
         }
-        return res.json();
-      })
-      .then((data) => {
-        setUsers((prev) =>
-          prev.map((u) => (u._id === userId ? { ...u, isAdmin: !u.isAdmin } : u))
-        );
-      })
-      .catch((err) => alert(err.message));
+      );
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to update user");
+      }
+
+      setUsers((prev) =>
+        prev.map((u) =>
+          u._id === userId ? { ...u, isAdmin: !u.isAdmin } : u
+        )
+      );
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   return (
-    <Container className="mt-4">
+    <AdminLayout adminName="Admin">
       <h2 className="mb-4">Users Management</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       <Card className="shadow-sm">
@@ -70,7 +83,9 @@ const AdminUsersPage = () => {
               ) : (
                 users.map((user) => (
                   <tr key={user._id}>
-                    <td>{user.firstName} {user.lastName}</td>
+                    <td>
+                      {user.firstName} {user.lastName}
+                    </td>
                     <td>{user.email}</td>
                     <td>{user.studentId || "-"}</td>
                     <td>{user.isAdmin ? "Yes" : "No"}</td>
@@ -94,7 +109,7 @@ const AdminUsersPage = () => {
           </Table>
         </Card.Body>
       </Card>
-    </Container>
+    </AdminLayout>
   );
 };
 

@@ -7,9 +7,11 @@ import ElectionsPage from './pages/ElectionsPage';
 import VotingPage from './pages/VotingPage';
 import AdminDashboard from './pages/admin/dashboard';
 import AdminUsersPage from './pages/admin/users';
+import { UserProvider } from './contexts/UserContext';
 
 function App() {
   return (
+    <UserProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
@@ -22,6 +24,7 @@ function App() {
         <Route path="/admin/users" element={<AdminUsersPage />} />
       </Routes>
     </BrowserRouter>
+    </UserProvider>
   );
 }
 

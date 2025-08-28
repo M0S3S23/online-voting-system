@@ -1,74 +1,67 @@
 import React, { useState } from 'react';
-import { Container, Card, Form, Button, Row, Col } from 'react-bootstrap';
+import { Container, Card, Form, Button } from 'react-bootstrap';
 import { ShieldLock, Eye, EyeSlash, Lock } from 'react-bootstrap-icons';
 import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from "../contexts/UserContext"; 
 
 const SignInPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [error, setError] = useState('');
 
   const navigate = useNavigate();
+  const { loginUser } = useUser();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
 
-  fetch("http://localhost:3000/reg/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    credentials: "include", // ✅ ensures session cookie is sent
-    body: JSON.stringify(formData),
-  })
-    .then(async (res) => {
+    try {
+      const res = await fetch("http://localhost:3000/reg/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
       if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        const msg = errorData.message || "Login failed";
-        throw new Error(msg);
+        throw new Error(data.message || "Login failed");
       }
-      return res.json();
-    })
-    .then((data) => {
-      // Redirect based on admin role
-      console.log(data);
+
+      // Save user in context
+      loginUser(data.user);
+
+      // Navigate based on user role
       if (data.user.isAdmin) {
         navigate("/admin");
       } else {
         navigate("/vdashboard");
       }
-    })
-    .catch((err) => {
-      alert(err.message);
-    });
-};
-
+    } catch (err) {
+      setError(err.message);
+    }
+  };
 
   return (
     <div className="signin-page">
-
-      {/* Main Content */}
-        <Container fluid className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
-          <Card className="shadow-sm p-4" style={{ width: '100%', maxWidth: '500px' }}>
-            {/* Security Icon */}
+      <Container fluid className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+        <Card className="shadow-sm p-4" style={{ width: '100%', maxWidth: '500px' }}>
           <div className="text-center mb-4">
             <ShieldLock size={48} className="text-primary" />
           </div>
 
-          {/* Heading */}
           <h2 className="text-center mb-2">Sign in to your account</h2>
           <p className="text-center text-muted mb-4">Access your secure voting dashboard</p>
 
-          {/* Sign In Form */}
+          {error && <p className="text-danger text-center">{error}</p>}
+
           <Form onSubmit={handleSubmit}>
-            {/* Email Field */}
             <Form.Group className="mb-3">
               <Form.Label>Email address</Form.Label>
               <Form.Control
@@ -81,7 +74,6 @@ const handleSubmit = (e) => {
               />
             </Form.Group>
 
-            {/* Password Field */}
             <Form.Group className="mb-3">
               <Form.Label>Password</Form.Label>
               <div className="position-relative">
@@ -97,19 +89,18 @@ const handleSubmit = (e) => {
                   variant="link"
                   className="position-absolute end-0 top-50 translate-middle-y"
                   onClick={() => setShowPassword(!showPassword)}
+                  type="button"
                 >
                   {showPassword ? <EyeSlash /> : <Eye />}
                 </Button>
               </div>
             </Form.Group>
 
-            {/* Sign In Button */}
             <Button variant="primary" type="submit" className="w-100 mb-3">
               <Lock className="me-2" />
               Sign In
             </Button>
 
-            {/* Registration Link */}
             <p className="text-center">
               Don't have an account?{' '}
               <Link to="/register" className="text-primary text-decoration-none">
