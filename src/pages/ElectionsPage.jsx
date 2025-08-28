@@ -1,85 +1,164 @@
-import React, { useState } from 'react';
-import { 
-  Container, 
-  Row, 
-  Col, 
-  Card, 
-  Button, 
-  Form, 
-  InputGroup, 
+import React, { useState, useEffect } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Button,
+  Form,
+  InputGroup,
   Badge,
   Nav,
-  Alert
-} from 'react-bootstrap';
-import { 
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import {
   Search,
   ShieldCheck,
   PersonCircle,
   Calendar,
   People,
-  BarChart
-} from 'react-bootstrap-icons';
-import Footer from '../components/Footer';
+  BarChart,
+  ExclamationTriangle,
+} from "react-bootstrap-icons";
+import { Link } from "react-router-dom";
+import Footer from "../components/Footer";
 
 const ElectionsPage = () => {
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [elections, setElections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock election data
-  const elections = [
-    {
-      id: 1,
-      title: "Presidential Election 2024",
-      status: "active",
-      description: "National Presidential Election for the year 2024",
-      startDate: "15/01/2024",
-      endDate: "15/01/2024",
-      totalVotes: 1247,
-      candidates: 3,
-      turnout: "83%",
-      candidatesList: [
-        { name: "Robert Anderson", party: "Democratic Party" },
-        { name: "Jennifer Martinez", party: "Republican Party" },
-        { name: "Thomas Wright", party: "Independent" }
-      ]
-    },
-    {
-      id: 2,
-      title: "Local Mayor Election for Springfield",
-      status: "upcoming",
-      description: "Municipal election for Springfield mayor",
-      startDate: "01/03/2024",
-      endDate: "15/03/2024",
-      totalVotes: 0,
-      candidates: 2,
-      turnout: "0%",
-      candidatesList: [
-        { name: "Sarah Johnson", party: "Progressive Party" },
-        { name: "Michael Chen", party: "Unity Party" }
-      ]
-    },
-    {
-      id: 3,
-      title: "School Board Election 2023",
-      status: "completed",
-      description: "Annual school board member election",
-      startDate: "10/10/2023",
-      endDate: "20/10/2023",
-      totalVotes: 892,
-      candidates: 4,
-      turnout: "78%",
-      candidatesList: []
+  // Fetch elections from backend
+  useEffect(() => {
+    fetchElections();
+  }, []);
+
+  const fetchElections = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch("http://localhost:3000/api/elections");
+      if (!response.ok) {
+        throw new Error("Failed to fetch elections");
+      }
+
+      const data = await response.json();
+      setElections(data);
+    } catch (err) {
+      console.error("Error fetching elections:", err);
+      setError("Failed to load elections. Please try again later.");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   // Filter elections based on active filter and search query
-  const filteredElections = elections.filter(election => {
-    const matchesFilter = activeFilter === 'all' || 
-                         election.status === activeFilter;
-    const matchesSearch = election.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         election.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const filteredElections = elections.filter((election) => {
+    const matchesFilter =
+      activeFilter === "all" || election.status === activeFilter;
+    const matchesSearch =
+      election.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      election.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
+
+  // Format date for display
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-US", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  };
+
+  // Get status badge color
+  const getStatusBadgeColor = (status) => {
+    switch (status) {
+      case "active":
+        return "success";
+      case "upcoming":
+        return "primary";
+      case "completed":
+        return "secondary";
+      default:
+        return "secondary";
+    }
+  };
+
+  // Get status display text
+  const getStatusDisplayText = (status) => {
+    switch (status) {
+      case "active":
+        return "Active";
+      case "upcoming":
+        return "Upcoming";
+      case "completed":
+        return "Completed";
+      default:
+        return status;
+    }
+  };
+
+  // Calculate total candidates for an election
+  const getTotalCandidates = (election) => {
+    return election.candidates ? election.candidates.length : 0;
+  };
+
+  // Calculate total votes for an election
+  const getTotalVotes = (election) => {
+    return election.votes ? election.votes.length : 0;
+  };
+
+  if (loading) {
+    return (
+      <div className="elections-page">
+        <nav className="navbar navbar-dark bg-dark">
+          <Container>
+            <span className="navbar-brand fw-bold">VoteSecure</span>
+          </Container>
+        </nav>
+
+        <Container className="py-5">
+          <div className="text-center">
+            <Spinner animation="border" role="status" className="mb-3">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <h4>Loading elections...</h4>
+          </div>
+        </Container>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="elections-page">
+        <nav className="navbar navbar-dark bg-dark">
+          <Container>
+            <span className="navbar-brand fw-bold">VoteSecure</span>
+          </Container>
+        </nav>
+
+        <Container className="py-5">
+          <Alert variant="danger" className="d-flex align-items-center">
+            <ExclamationTriangle size={32} className="me-3 flex-shrink-0" />
+            <div>
+              <h5 className="mb-1">Error Loading Elections</h5>
+              <p className="mb-3">{error}</p>
+              <Button variant="outline-danger" onClick={fetchElections}>
+                Try Again
+              </Button>
+            </div>
+          </Alert>
+        </Container>
+      </div>
+    );
+  }
 
   return (
     <div className="elections-page">
@@ -89,13 +168,41 @@ const ElectionsPage = () => {
           <span className="navbar-brand fw-bold">VoteSecure</span>
           <div className="d-flex align-items-center">
             <Nav className="me-4">
-              <Nav.Link className="text-white">Dashboard</Nav.Link>
-              <Nav.Link className="text-white active">Elections</Nav.Link>
+              <Nav.Link as={Link} to="/vdashboard" className="text-white">
+                Dashboard
+              </Nav.Link>
+              <Nav.Link as={Link} to="/elections" className="text-white active">
+                Elections
+              </Nav.Link>
             </Nav>
             <div className="dropdown">
-              <button className="btn btn-outline-light dropdown-toggle" type="button">
+              <button
+                className="btn btn-outline-light dropdown-toggle"
+                type="button"
+                data-bs-toggle="dropdown"
+              >
                 John Smith
               </button>
+              <ul className="dropdown-menu dropdown-menu-end">
+                <li>
+                  <a className="dropdown-item" href="#profile">
+                    Profile
+                  </a>
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#settings">
+                    Settings
+                  </a>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <a className="dropdown-item" href="#logout">
+                    Logout
+                  </a>
+                </li>
+              </ul>
             </div>
           </div>
         </Container>
@@ -130,27 +237,35 @@ const ElectionsPage = () => {
           </Col>
           <Col md={4} className="d-flex justify-content-end">
             <div className="btn-group">
-              <Button 
-                variant={activeFilter === 'all' ? 'primary' : 'outline-secondary'}
-                onClick={() => setActiveFilter('all')}
+              <Button
+                variant={
+                  activeFilter === "all" ? "primary" : "outline-secondary"
+                }
+                onClick={() => setActiveFilter("all")}
               >
                 All
               </Button>
-              <Button 
-                variant={activeFilter === 'active' ? 'primary' : 'outline-secondary'}
-                onClick={() => setActiveFilter('active')}
+              <Button
+                variant={
+                  activeFilter === "active" ? "primary" : "outline-secondary"
+                }
+                onClick={() => setActiveFilter("active")}
               >
                 Active
               </Button>
-              <Button 
-                variant={activeFilter === 'upcoming' ? 'primary' : 'outline-secondary'}
-                onClick={() => setActiveFilter('upcoming')}
+              <Button
+                variant={
+                  activeFilter === "upcoming" ? "primary" : "outline-secondary"
+                }
+                onClick={() => setActiveFilter("upcoming")}
               >
                 Upcoming
               </Button>
-              <Button 
-                variant={activeFilter === 'completed' ? 'primary' : 'outline-secondary'}
-                onClick={() => setActiveFilter('completed')}
+              <Button
+                variant={
+                  activeFilter === "completed" ? "primary" : "outline-secondary"
+                }
+                onClick={() => setActiveFilter("completed")}
               >
                 Completed
               </Button>
@@ -161,31 +276,30 @@ const ElectionsPage = () => {
         {/* Election Listings */}
         <Row className="g-4">
           {filteredElections.length > 0 ? (
-            filteredElections.map(election => (
-              <Col key={election.id} lg={6}>
+            filteredElections.map((election) => (
+              <Col key={election._id} lg={6}>
                 <Card className="h-100 shadow-sm">
                   <Card.Body>
                     <div className="d-flex justify-content-between align-items-start mb-3">
                       <h4 className="mb-0">{election.title}</h4>
-                      <Badge 
-                        bg={
-                          election.status === 'active' ? 'success' : 
-                          election.status === 'upcoming' ? 'primary' : 'secondary'
-                        }
-                      >
-                        {election.status.charAt(0).toUpperCase() + election.status.slice(1)}
+                      <Badge bg={getStatusBadgeColor(election.status)}>
+                        {getStatusDisplayText(election.status)}
                       </Badge>
                     </div>
                     <p className="text-muted mb-4">{election.description}</p>
-                    
+
                     {/* Election Stats */}
                     <Row className="mb-4 g-3">
                       <Col xs={4}>
                         <div className="d-flex align-items-center">
                           <People size={18} className="me-2 text-muted" />
                           <div>
-                            <small className="text-muted d-block">Total Votes</small>
-                            <span className="fw-bold">{election.totalVotes.toLocaleString()}</span>
+                            <small className="text-muted d-block">
+                              Total Votes
+                            </small>
+                            <span className="fw-bold">
+                              {getTotalVotes(election).toLocaleString()}
+                            </span>
                           </div>
                         </div>
                       </Col>
@@ -193,8 +307,12 @@ const ElectionsPage = () => {
                         <div className="d-flex align-items-center">
                           <PersonCircle size={18} className="me-2 text-muted" />
                           <div>
-                            <small className="text-muted d-block">Candidates</small>
-                            <span className="fw-bold">{election.candidates}</span>
+                            <small className="text-muted d-block">
+                              Candidates
+                            </small>
+                            <span className="fw-bold">
+                              {getTotalCandidates(election)}
+                            </span>
                           </div>
                         </div>
                       </Col>
@@ -202,27 +320,34 @@ const ElectionsPage = () => {
                         <div className="d-flex align-items-center">
                           <BarChart size={18} className="me-2 text-muted" />
                           <div>
-                            <small className="text-muted d-block">Turnout</small>
-                            <span className="fw-bold">{election.turnout}</span>
+                            <small className="text-muted d-block">
+                              Positions
+                            </small>
+                            <span className="fw-bold">
+                              {election.positions
+                                ? election.positions.length
+                                : 0}
+                            </span>
                           </div>
                         </div>
                       </Col>
                     </Row>
 
-                    {/* Candidates List */}
-                    {election.candidatesList.length > 0 && (
+                    {/* Positions List */}
+                    {election.positions && election.positions.length > 0 && (
                       <div className="mb-4">
-                        <h6 className="mb-2">Candidates:</h6>
+                        <h6 className="mb-2">Positions:</h6>
                         <div className="d-flex flex-wrap gap-2">
-                          {election.candidatesList.map((candidate, index) => (
-                            <Badge 
-                              key={index} 
-                              bg="light" 
-                              text="dark" 
+                          {election.positions.map((position, index) => (
+                            <Badge
+                              key={index}
+                              bg="light"
+                              text="dark"
                               className="d-flex align-items-center"
                             >
                               <PersonCircle size={16} className="me-1" />
-                              {candidate.name} - {candidate.party}
+                              {position.positionName} ({position.seats} seat
+                              {position.seats > 1 ? "s" : ""})
                             </Badge>
                           ))}
                         </div>
@@ -232,14 +357,24 @@ const ElectionsPage = () => {
                     {/* Dates and Action Button */}
                     <div className="d-flex justify-content-between align-items-end">
                       <div>
-                        <small className="text-muted d-block">Starts: {election.startDate}</small>
-                        <small className="text-muted d-block">Ends: {election.endDate}</small>
+                        <small className="text-muted d-block">
+                          Starts: {formatDate(election.startDate)}
+                        </small>
+                        <small className="text-muted d-block">
+                          Ends: {formatDate(election.endDate)}
+                        </small>
                       </div>
                       <div>
-                        {election.status === 'active' ? (
-                          <Button variant="primary">Vote Now</Button>
+                        {election.status === "active" ? (
+                          <Link to={`/elections/${election._id}`}>
+                            <Button variant="primary">View & Vote</Button>
+                          </Link>
                         ) : (
-                          <Button variant="outline-primary">View Details</Button>
+                          <Link to={`/elections/${election._id}`}>
+                            <Button variant="outline-primary">
+                              View Details
+                            </Button>
+                          </Link>
                         )}
                       </div>
                     </div>
@@ -250,7 +385,14 @@ const ElectionsPage = () => {
           ) : (
             <Col>
               <Card className="text-center py-5">
-                <h5 className="text-muted">No elections found matching your criteria</h5>
+                <h5 className="text-muted">
+                  No elections found matching your criteria
+                </h5>
+                {searchQuery && (
+                  <p className="text-muted">
+                    Try adjusting your search or filters
+                  </p>
+                )}
               </Card>
             </Col>
           )}
@@ -264,8 +406,9 @@ const ElectionsPage = () => {
               <div>
                 <h5 className="mb-1">Secure Voting Guarantee</h5>
                 <p className="mb-0">
-                  All votes are encrypted end-to-end and verified through multiple security layers. 
-                  Your privacy is protected while maintaining complete transparency in the democratic process.
+                  All votes are encrypted end-to-end and verified through
+                  multiple security layers. Your privacy is protected while
+                  maintaining complete transparency in the democratic process.
                 </p>
               </div>
             </Alert>
