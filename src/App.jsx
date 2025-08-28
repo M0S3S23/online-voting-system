@@ -5,6 +5,8 @@ import RegisterPage from './pages/RegisterPage';
 import VoterDashboard from './pages/VoterDashboard';
 import ElectionsPage from './pages/ElectionsPage';
 import VotingPage from './pages/VotingPage';
+import AdminDashboard from './pages/admin/dashboard';
+import AdminUsersPage from './pages/admin/users';
 
 function App() {
   return (
@@ -16,6 +18,8 @@ function App() {
         <Route path="/vdashboard" element={<VoterDashboard />} />
         <Route path="/elections" element={<ElectionsPage />} />
         <Route path="/elections/:id/vote" element={<VotingPage />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
       </Routes>
     </BrowserRouter>
   );

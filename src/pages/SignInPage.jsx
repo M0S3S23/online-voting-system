@@ -19,30 +19,45 @@ const SignInPage = () => {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle sign in logic here
-    console.log('Signing in with:', formData);
-    navigate("/vdashboard");
-  };
+const handleSubmit = (e) => {
+  e.preventDefault();
+
+  fetch("http://localhost:3000/reg/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    credentials: "include", // ✅ ensures session cookie is sent
+    body: JSON.stringify(formData),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const msg = errorData.message || "Login failed";
+        throw new Error(msg);
+      }
+      return res.json();
+    })
+    .then((data) => {
+      // Redirect based on admin role
+      console.log(data);
+      if (data.user.isAdmin) {
+        navigate("/admin");
+      } else {
+        navigate("/vdashboard");
+      }
+    })
+    .catch((err) => {
+      alert(err.message);
+    });
+};
+
 
   return (
     <div className="signin-page">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-dark bg-dark">
-        <Container>
-          <span className="navbar-brand fw-bold">VoteSecure</span>
-          <div className="d-flex">
-            <Link to="/signin" className="btn btn-outline-light me-2 disabled">Sign In</Link>
-            <Link to="/register" className="btn btn-primary">Register to Vote</Link>
-          </div>
-        </Container>
-      </nav>
 
       {/* Main Content */}
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: '80vh' }}>
-        <Card className="shadow-sm p-4" style={{ width: '100%', maxWidth: '500px' }}>
-          {/* Security Icon */}
+        <Container fluid className="d-flex justify-content-center align-items-center" style={{ minHeight: '100vh' }}>
+          <Card className="shadow-sm p-4" style={{ width: '100%', maxWidth: '500px' }}>
+            {/* Security Icon */}
           <div className="text-center mb-4">
             <ShieldLock size={48} className="text-primary" />
           </div>
