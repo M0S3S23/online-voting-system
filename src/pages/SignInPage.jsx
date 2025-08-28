@@ -108,14 +108,16 @@ const handleSubmit = (e) => {
               <Lock className="me-2" />
               Sign In
             </Button>
-
-            {/* Registration Link */}
-            <p className="text-center">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary text-decoration-none">
-                Register to vote
-              </Link>
-            </p>
+{/* Forgot Password and Registration Links */}
+<div className="text-center">
+  <Link to="/forgot-password" className="text-primary text-decoration-none d-block mb-2">
+    Forgot password?
+  </Link>
+  <span className="text-muted">Don't have an account? </span>
+  <Link to="/register" className="text-primary text-decoration-none">
+    Register to vote
+  </Link>
+</div>
           </Form>
         </Card>
       </Container>
