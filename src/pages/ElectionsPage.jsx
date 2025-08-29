@@ -79,7 +79,7 @@ const ElectionsPage = () => {
   // Get status badge color
   const getStatusBadgeColor = (status) => {
     switch (status) {
-      case "active":
+      case "ongoing":
         return "success";
       case "upcoming":
         return "primary";
@@ -93,8 +93,8 @@ const ElectionsPage = () => {
   // Get status display text
   const getStatusDisplayText = (status) => {
     switch (status) {
-      case "active":
-        return "Active";
+      case "ongoing":
+        return "Ongoing";
       case "upcoming":
         return "Upcoming";
       case "completed":
@@ -365,7 +365,7 @@ const ElectionsPage = () => {
                         </small>
                       </div>
                       <div>
-                        {election.status === "active" ? (
+                        {election.status === "ongoing" ? (
                           <Link to={`/elections/${election._id}`}>
                             <Button variant="primary">View & Vote</Button>
                           </Link>

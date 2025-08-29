@@ -113,6 +113,63 @@ const ElectionDetailsPage = () => {
     ).length;
   };
 
+  // Calculate vote tallies grouped by position for accurate per-position analytics
+  const getVoteTalliesByPosition = () => {
+    if (!election) return {};
+
+    const resultsByPosition = {};
+    const positions = election.positions || [];
+
+    // Helper to count votes for a given position
+    const buildCountsForPosition = (positionName) => {
+      const counts = new Map();
+      for (const v of election.votes || []) {
+        if (v.position === positionName) {
+          const key = String(v.candidateId);
+          counts.set(key, (counts.get(key) || 0) + 1);
+        }
+      }
+      return counts;
+    };
+
+    for (const pos of positions) {
+      const positionName = pos.positionName;
+      const countsMap = buildCountsForPosition(positionName);
+
+      const candidatesForPosition = (election.candidates || []).filter(
+        (c) => c.position === positionName
+      );
+
+      const tallies = candidatesForPosition
+        .map((c) => {
+          const count = countsMap.get(String(c._id)) || 0;
+          const userObj = c.userId || c.user || {};
+          const first = userObj.firstName || "";
+          const last = userObj.lastName || "";
+          const displayName = `${first} ${last}`.trim() || "Unknown";
+          return {
+            candidateId: String(c._id),
+            name: displayName,
+            party: c.party,
+            count,
+          };
+        })
+        .sort((a, b) => b.count - a.count);
+
+      const total = tallies.reduce((sum, t) => sum + t.count, 0);
+      const leader = tallies.length > 0 ? tallies[0] : null;
+
+      resultsByPosition[positionName] = {
+        total,
+        tallies,
+        leader,
+        position: pos,
+      };
+    }
+
+    return resultsByPosition;
+  };
+
   if (loading) {
     return (
       <div className="election-details-page">
@@ -228,7 +285,7 @@ const ElectionDetailsPage = () => {
                   <Badge bg={getStatusBadgeColor(election.status)} size="lg">
                     {getStatusDisplayText(election.status)}
                   </Badge>
-                  {election.status === "active" && (
+                  {election.status === "ongoing" && (
                     <Badge bg="success" size="lg">
                       <CheckCircle className="me-1" />
                       Voting Open
@@ -347,6 +404,121 @@ const ElectionDetailsPage = () => {
                     </p>
                   </Alert>
                 )}
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Live Vote Analytics (Per Position) */}
+        <Row className="mb-4">
+          <Col>
+            <Card>
+              <Card.Header className="d-flex justify-content-between align-items-center">
+                <h4 className="mb-0">Live Vote Analytics</h4>
+                <Button
+                  variant="outline-secondary"
+                  size="sm"
+                  onClick={fetchElectionDetails}
+                >
+                  Refresh
+                </Button>
+              </Card.Header>
+              <Card.Body>
+                {(() => {
+                  const analytics = getVoteTalliesByPosition();
+                  const positionNames = Object.keys(analytics);
+                  if (positionNames.length === 0) {
+                    return (
+                      <Alert variant="info" className="mb-0">
+                        No positions to analyze.
+                      </Alert>
+                    );
+                  }
+
+                  return positionNames.map((pName) => {
+                    const { total, tallies, leader, position } =
+                      analytics[pName];
+                    return (
+                      <Card key={pName} className="mb-4">
+                        <Card.Header>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <strong>{position.positionName}</strong>
+                              <span className="text-muted ms-2">
+                                {position.seats} seat
+                                {position.seats > 1 ? "s" : ""}
+                              </span>
+                            </div>
+                            <div>
+                              <strong>Total Votes:</strong>{" "}
+                              {total.toLocaleString()}
+                            </div>
+                          </div>
+                          {position.description && (
+                            <div className="text-muted small mt-1">
+                              {position.description}
+                            </div>
+                          )}
+                        </Card.Header>
+                        <Card.Body>
+                          {tallies.length > 0 ? (
+                            <>
+                              {tallies.map((t) => {
+                                const pct =
+                                  total > 0
+                                    ? Math.round((t.count / total) * 100)
+                                    : 0;
+                                return (
+                                  <div key={t.candidateId} className="mb-3">
+                                    <div className="d-flex justify-content-between">
+                                      <div>
+                                        <strong>{t.name}</strong>{" "}
+                                        <span className="text-muted">
+                                          ({t.party})
+                                        </span>
+                                      </div>
+                                      <div>
+                                        {t.count.toLocaleString()} votes ({pct}
+                                        %)
+                                      </div>
+                                    </div>
+                                    <div
+                                      className="progress"
+                                      style={{ height: 10 }}
+                                    >
+                                      <div
+                                        className="progress-bar"
+                                        role="progressbar"
+                                        style={{ width: `${pct}%` }}
+                                        aria-valuenow={pct}
+                                        aria-valuemin={0}
+                                        aria-valuemax={100}
+                                      />
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {leader && (
+                                <Alert variant="success" className="mt-3">
+                                  <CheckCircle className="me-2" />
+                                  Current leader: <strong>
+                                    {leader.name}
+                                  </strong>{" "}
+                                  ({leader.party}) with{" "}
+                                  {leader.count.toLocaleString()} votes
+                                </Alert>
+                              )}
+                            </>
+                          ) : (
+                            <Alert variant="info" className="mb-0">
+                              No votes for this position yet.
+                            </Alert>
+                          )}
+                        </Card.Body>
+                      </Card>
+                    );
+                  });
+                })()}
               </Card.Body>
             </Card>
           </Col>

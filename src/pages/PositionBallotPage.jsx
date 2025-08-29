@@ -392,7 +392,7 @@ const PositionBallotPage = () => {
         </Row>
 
         {/* Voting Actions */}
-        {candidates.length > 0 && election?.status === "active" && (
+        {candidates.length > 0 && election?.status === "ongoing" && (
           <Row className="mb-4">
             <Col className="text-center">
               <Button
