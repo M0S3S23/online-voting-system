@@ -14,6 +14,17 @@ const theme = {
 const AdminNavbar = () => {
   const { user, logoutUser } = useUser();
 
+  const handleLogout = () => {
+    //sendind a logout request to the backend server
+
+    
+
+    logoutUser();
+
+ 
+    window.location.href = "/signin"; // redirect to login
+  }
+
   return (
     <Navbar
       style={{
@@ -36,7 +47,7 @@ const AdminNavbar = () => {
               window.location.href = "/signin"; // redirect to login
             }}
           >
-            <BoxArrowRight className="me-1" /> Logout
+            <BoxArrowRight className="me-1" onClick={handleLogout}/> Logout
           </Button>
         </div>
       </Container>

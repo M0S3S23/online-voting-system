@@ -31,6 +31,27 @@ const AdminUsersPage = () => {
     fetchUsers();
   }, []);
 
+  // Delete user
+  const handleDelete = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+    try {
+      const res = await fetch(
+        `http://localhost:3000/admin/users/delete/${userId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        }
+      );
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to delete user");
+      }
+      setUsers((prev) => prev.filter((u) => u._id !== userId));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
   // Toggle admin status
   const toggleAdmin = async (userId) => {
     try {
@@ -53,6 +74,7 @@ const AdminUsersPage = () => {
         )
       );
     } catch (err) {
+      console.log(err);
       alert(err.message);
     }
   };
@@ -98,7 +120,11 @@ const AdminUsersPage = () => {
                       >
                         {user.isAdmin ? "Revoke Admin" : "Make Admin"}
                       </Button>
-                      <Button size="sm" variant="danger">
+                      <Button
+                        size="sm"
+                        variant="danger"
+                        onClick={() => handleDelete(user._id)}
+                      >
                         <Trash /> Delete
                       </Button>
                     </td>
