@@ -9,7 +9,8 @@ import AdminDashboard from './pages/admin/dashboard';
 import AdminUsersPage from './pages/admin/users';
 import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import { UserProvider } from './contexts/UserContext';
-import CreateElectionPage from './components/form/CreateElectionForm';
+import CreateElectionPage from './pages/admin/CreateElectionPage';
+import ManageElectionPage from './pages/admin/ManageElectionPage';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/elections" element={<CreateElectionPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
+        <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
       </Routes>
     </BrowserRouter>
     </UserProvider>
