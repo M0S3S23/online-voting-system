@@ -1,21 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col, Card } from "react-bootstrap";
+import { Row, Col, Card } from "react-bootstrap";
 import { PeopleFill, PlayFill, ClockFill, CheckCircleFill } from "react-bootstrap-icons";
-import AdminLayout from "../../components/admin/AdminLayout"; // wraps Navbar + Sidebar
+import AdminLayout from "../../components/admin/AdminLayout";
 
 const cardStyles = {
   border: "none",
   borderRadius: "1rem",
-  color: "#fff",
   cursor: "pointer",
   transition: "transform 0.2s ease, box-shadow 0.2s ease",
 };
 
+// Gradient backgrounds
 const gradients = {
-  users: "linear-gradient(135deg, #0d6efd, #3b82f6)",
-  active: "linear-gradient(135deg, #198754, #20c997)",
-  upcoming: "linear-gradient(135deg, #ffc107, #ffcd39)",
-  completed: "linear-gradient(135deg, #6610f2, #6f42c1)",
+  dark: {
+    users: "linear-gradient(135deg, #0d6efd, #3b82f6)",
+    active: "linear-gradient(135deg, #198754, #20c997)",
+    upcoming: "linear-gradient(135deg, #ffc107, #ffcd39)",
+    completed: "linear-gradient(135deg, #6610f2, #6f42c1)",
+  },
+  light: {
+    users: "#e7f1ff",
+    active: "#d4f8e8",
+    upcoming: "#fff5d1",
+    completed: "#efe0ff",
+  },
 };
 
 const AdminDashboard = () => {
@@ -63,44 +71,83 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  const StatCard = ({ title, value, icon: Icon, bg }) => (
+  // Single Stat Card
+  const StatCard = ({ title, value, icon: Icon, bg, darkMode }) => (
     <Card
-      style={{ ...cardStyles, background: bg }}
+      style={{
+        ...cardStyles,
+        background: bg,
+        color: darkMode ? "#fff" : "#212529",
+      }}
       className="shadow-sm"
       onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-5px)")}
       onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
     >
       <Card.Body className="d-flex align-items-center justify-content-between">
         <div>
-          <h6 className="mb-1 text-uppercase" style={{ fontSize: "0.8rem", opacity: 0.9 }}>
+          <h6 className="mb-1 text-uppercase" style={{ fontSize: "0.8rem", opacity: 0.85 }}>
             {title}
           </h6>
           <h2 className="fw-bold mb-0">{loading ? "..." : value}</h2>
         </div>
-        <Icon size={36} opacity={0.8} />
+        <Icon size={36} opacity={0.85} />
       </Card.Body>
     </Card>
   );
 
   return (
-    <AdminLayout adminName="Admin">
-      <Container fluid className="mt-4">
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        <Row className="g-4">
-          <Col md={3}>
-            <StatCard title="Total Users" value={stats.totalUsers} icon={PeopleFill} bg={gradients.users} />
-          </Col>
-          <Col md={3}>
-            <StatCard title="Active Elections" value={stats.active} icon={PlayFill} bg={gradients.active} />
-          </Col>
-          <Col md={3}>
-            <StatCard title="Upcoming Elections" value={stats.upcoming} icon={ClockFill} bg={gradients.upcoming} />
-          </Col>
-          <Col md={3}>
-            <StatCard title="Completed Elections" value={stats.completed} icon={CheckCircleFill} bg={gradients.completed} />
-          </Col>
-        </Row>
-      </Container>
+    <AdminLayout>
+      {(darkMode) => (
+        <div>
+          <div className="mb-4">
+            <h2 className="fw-bold">Dashboard Overview</h2>
+            <p style={{ opacity: 0.7, marginBottom: 0 }}>
+              Quick glance at system statistics and election activity
+            </p>
+          </div>
+
+          {error && <p style={{ color: "red" }}>{error}</p>}
+
+          <Row className="g-4">
+            <Col md={3}>
+              <StatCard
+                title="Total Users"
+                value={stats.totalUsers}
+                icon={PeopleFill}
+                bg={darkMode ? gradients.dark.users : gradients.light.users}
+                darkMode={darkMode}
+              />
+            </Col>
+            <Col md={3}>
+              <StatCard
+                title="Active Elections"
+                value={stats.active}
+                icon={PlayFill}
+                bg={darkMode ? gradients.dark.active : gradients.light.active}
+                darkMode={darkMode}
+              />
+            </Col>
+            <Col md={3}>
+              <StatCard
+                title="Upcoming Elections"
+                value={stats.upcoming}
+                icon={ClockFill}
+                bg={darkMode ? gradients.dark.upcoming : gradients.light.upcoming}
+                darkMode={darkMode}
+              />
+            </Col>
+            <Col md={3}>
+              <StatCard
+                title="Completed Elections"
+                value={stats.completed}
+                icon={CheckCircleFill}
+                bg={darkMode ? gradients.dark.completed : gradients.light.completed}
+                darkMode={darkMode}
+              />
+            </Col>
+          </Row>
+        </div>
+      )}
     </AdminLayout>
   );
 };
