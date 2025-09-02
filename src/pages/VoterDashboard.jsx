@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {Link} from 'react-router-dom';
 import { Container, Card, Row, Col, Button, ListGroup, Badge } from 'react-bootstrap';
 import { 
@@ -14,6 +14,7 @@ import {
   ArrowRight
 } from 'react-bootstrap-icons';
 import { Nav } from 'react-bootstrap';
+import { fetchElections } from '../services/elections';
 import Footer from '../components/Footer';
 
 const VoterDashboard = () => {
@@ -33,7 +34,7 @@ const VoterDashboard = () => {
     { title: "Security Score", value: "100%", icon: <ShieldCheck size={24} className="text-warning" /> }
   ];
 
-  // Active elections
+  const [firstElectionId, setFirstElectionId] = useState('');
   const activeElections = [
     {
       title: "Presidential Election 2024",
@@ -46,6 +47,18 @@ const VoterDashboard = () => {
       ]
     }
   ];
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const elections = await fetchElections();
+        if (Array.isArray(elections) && elections.length > 0) {
+          setFirstElectionId(elections[0]._id);
+        }
+      } catch {}
+    };
+    load();
+  }, []);
 
   // Recent activity
   const recentActivity = [
@@ -63,6 +76,7 @@ const VoterDashboard = () => {
             <Nav className="me-4">
               <Nav.Link className="text-white">Dashboard</Nav.Link>
               <Nav.Link as={Link} to={'/elections'} className="text-white">Elections</Nav.Link>
+              <Nav.Link as={Link} to={`/elections/${firstElectionId || 'placeholder'}/apply`} className="text-white">Apply</Nav.Link>
             </Nav>
             <div className="dropdown">
               <button className="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
@@ -135,12 +149,10 @@ const VoterDashboard = () => {
               <Card.Body className="d-flex align-items-center">
                 <BarChart size={32} className="me-3" />
                 <div>
-                  <h5 className="mb-1">View Results</h5>
-                  <p className="mb-0 small">Check election outcomes</p>
+                  <h5 className="mb-1">Apply to Stand</h5>
+                  <p className="mb-0 small">Submit your candidacy application</p>
                 </div>
-                <Button variant="light" size="sm" className="ms-auto">
-                  Go <ArrowRight size={16} />
-                </Button>
+                <Button as={Link} to={`/elections/${firstElectionId || 'placeholder'}/apply`} variant="light" size="sm" className="ms-auto">Go <ArrowRight size={16} /></Button>
               </Card.Body>
             </Card>
           </Col>

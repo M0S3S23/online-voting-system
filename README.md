@@ -1,5 +1,13 @@
 # React + Vite
 
+Development config
+
+- Create a `.env` file in the frontend with:
+
+```
+VITE_API_BASE_URL=http://localhost:3000
+```
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

@@ -9,6 +9,8 @@ import ElectionsPage from "./pages/ElectionsPage";
 import ElectionDetailsPage from "./pages/ElectionDetailsPage";
 import PositionBallotPage from "./pages/PositionBallotPage";
 import VotingPage from "./pages/VotingPage";
+import ApplyForPosition from "./pages/ApplyForPosition";
+import ApplicationStatus from "./pages/ApplicationStatus";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           element={<PositionBallotPage />}
         />
         <Route path="/elections/:id/vote" element={<VotingPage />} />
+        <Route path="/elections/:id/apply" element={<ApplyForPosition />} />
+        <Route path="/elections/:id/application-status" element={<ApplicationStatus />} />
       </Routes>
     </BrowserRouter>
   );
