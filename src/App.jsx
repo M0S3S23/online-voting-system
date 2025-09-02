@@ -8,6 +8,7 @@ import VotingPage from './pages/VotingPage';
 import AdminDashboard from './pages/admin/dashboard';
 import AdminUsersPage from './pages/admin/users';
 import { UserProvider } from './contexts/UserContext';
+import CreateElectionPage from './components/form/CreateElectionForm';
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
         <Route path="/elections/:id/vote" element={<VotingPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
+        <Route path="/admin/elections" element={<CreateElectionPage />} />
+
       </Routes>
     </BrowserRouter>
     </UserProvider>
