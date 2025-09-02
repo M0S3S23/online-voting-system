@@ -23,7 +23,7 @@ function App() {
         <Route path="/elections" element={<ElectionsPage />} />
         <Route path="/elections/:id/vote" element={<VotingPage />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsersPage />} />< HEAD
+        <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/elections" element={<CreateElectionPage />} />
         <Route path="/admin/settings" element={<AdminSettingsPage />} />
       </Routes>
