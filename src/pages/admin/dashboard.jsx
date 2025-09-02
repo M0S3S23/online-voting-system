@@ -3,6 +3,21 @@ import { Row, Col, Card } from "react-bootstrap";
 import { PeopleFill, PlayFill, ClockFill, CheckCircleFill } from "react-bootstrap-icons";
 import AdminLayout from "../../components/admin/AdminLayout";
 
+// Chart.js imports
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  ArcElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Pie, Bar } from "react-chartjs-2";
+
+ChartJS.register(CategoryScale, LinearScale, ArcElement, BarElement, Title, Tooltip, Legend);
+
 const cardStyles = {
   border: "none",
   borderRadius: "1rem",
@@ -10,7 +25,6 @@ const cardStyles = {
   transition: "transform 0.2s ease, box-shadow 0.2s ease",
 };
 
-// Gradient backgrounds
 const gradients = {
   dark: {
     users: "linear-gradient(135deg, #0d6efd, #3b82f6)",
@@ -71,7 +85,6 @@ const AdminDashboard = () => {
     fetchStats();
   }, []);
 
-  // Single Stat Card
   const StatCard = ({ title, value, icon: Icon, bg, darkMode }) => (
     <Card
       style={{
@@ -97,57 +110,128 @@ const AdminDashboard = () => {
 
   return (
     <AdminLayout>
-      {(darkMode) => (
-        <div>
-          <div className="mb-4">
-            <h2 className="fw-bold">Dashboard Overview</h2>
-            <p style={{ opacity: 0.7, marginBottom: 0 }}>
-              Quick glance at system statistics and election activity
-            </p>
+      {(darkMode) => {
+        const textColor = darkMode ? "#f8f9fa" : "#212529";
+
+        // Pie chart data for election status
+        const pieData = {
+          labels: ["Active", "Upcoming", "Completed"],
+          datasets: [
+            {
+              data: [stats.active, stats.upcoming, stats.completed],
+              backgroundColor: ["#198754", "#ffc107", "#6610f2"],
+            },
+          ],
+        };
+
+        // Bar chart data for total users vs elections
+        const barData = {
+          labels: [ "Active Elections", "Upcoming Elections", "Completed Elections"],
+          datasets: [
+            {
+              label: "Count",
+              data: [ stats.active, stats.upcoming, stats.completed],
+              backgroundColor: ["#0d6efd", "#198754", "#ffc107"],
+              borderRadius: 6,
+            },
+          ],
+        };
+
+        return (
+          <div>
+            <div className="mb-4">
+              <h2 className="fw-bold">Dashboard Overview</h2>
+              <p style={{ opacity: 0.7, marginBottom: 0 }}>
+                Quick glance at system statistics and election activity
+              </p>
+            </div>
+
+            {error && <p style={{ color: "red" }}>{error}</p>}
+
+            <Row className="g-4 mb-4">
+              <Col md={3}>
+                <StatCard
+                  title="Total Users"
+                  value={stats.totalUsers}
+                  icon={PeopleFill}
+                  bg={darkMode ? gradients.dark.users : gradients.light.users}
+                  darkMode={darkMode}
+                />
+              </Col>
+              <Col md={3}>
+                <StatCard
+                  title="Active Elections"
+                  value={stats.active}
+                  icon={PlayFill}
+                  bg={darkMode ? gradients.dark.active : gradients.light.active}
+                  darkMode={darkMode}
+                />
+              </Col>
+              <Col md={3}>
+                <StatCard
+                  title="Upcoming Elections"
+                  value={stats.upcoming}
+                  icon={ClockFill}
+                  bg={darkMode ? gradients.dark.upcoming : gradients.light.upcoming}
+                  darkMode={darkMode}
+                />
+              </Col>
+              <Col md={3}>
+                <StatCard
+                  title="Completed Elections"
+                  value={stats.completed}
+                  icon={CheckCircleFill}
+                  bg={darkMode ? gradients.dark.completed : gradients.light.completed}
+                  darkMode={darkMode}
+                />
+              </Col>
+            </Row>
+
+            <Row className="g-4">
+              <Col md={6}>
+  <Card
+    style={{
+      background: darkMode ? "#27293d" : "#fff",
+      color: textColor,
+      borderRadius: "1rem",
+      height: "350px", // Card height
+    }}
+  >
+    <Card.Body className="d-flex flex-column">
+      <h5 className="mb-3">Election Status Distribution</h5>
+      <div style={{ flex: 1 }}> {/* Make chart fill remaining space */}
+        <Pie
+          data={pieData}
+          options={{
+            responsive: true,
+            maintainAspectRatio: false, // allow filling container
+            plugins: { legend: { position: "bottom" } },
+          }}
+        />
+      </div>
+    </Card.Body>
+  </Card>
+</Col>
+
+              <Col md={6}>
+                <Card style={{ background: darkMode ? "#27293d" : "#fff", color: textColor, borderRadius: "1rem" }}>
+                  <Card.Body>
+                    <h5 className="mb-3">Elections</h5>
+                    <Bar
+                      data={barData}
+                      options={{
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: { y: { beginAtZero: true } },
+                      }}
+                    />
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
           </div>
-
-          {error && <p style={{ color: "red" }}>{error}</p>}
-
-          <Row className="g-4">
-            <Col md={3}>
-              <StatCard
-                title="Total Users"
-                value={stats.totalUsers}
-                icon={PeopleFill}
-                bg={darkMode ? gradients.dark.users : gradients.light.users}
-                darkMode={darkMode}
-              />
-            </Col>
-            <Col md={3}>
-              <StatCard
-                title="Active Elections"
-                value={stats.active}
-                icon={PlayFill}
-                bg={darkMode ? gradients.dark.active : gradients.light.active}
-                darkMode={darkMode}
-              />
-            </Col>
-            <Col md={3}>
-              <StatCard
-                title="Upcoming Elections"
-                value={stats.upcoming}
-                icon={ClockFill}
-                bg={darkMode ? gradients.dark.upcoming : gradients.light.upcoming}
-                darkMode={darkMode}
-              />
-            </Col>
-            <Col md={3}>
-              <StatCard
-                title="Completed Elections"
-                value={stats.completed}
-                icon={CheckCircleFill}
-                bg={darkMode ? gradients.dark.completed : gradients.light.completed}
-                darkMode={darkMode}
-              />
-            </Col>
-          </Row>
-        </div>
-      )}
+        );
+      }}
     </AdminLayout>
   );
 };
