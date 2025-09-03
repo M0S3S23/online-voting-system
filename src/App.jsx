@@ -12,6 +12,11 @@ import { UserProvider } from './contexts/UserContext';
 import CreateElectionPage from './pages/admin/CreateElectionPage';
 import ManageElectionPage from './pages/admin/ManageElectionPage';
 import { ElectionProvider } from "./contexts/ElectionContext.jsx";
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import ElectionDetailsPage from './pages/ElectionDetailsPage';
+import PositionBallotPage from './pages/PositionBallotPage';
+import ElectionResults from './pages/ElectionResults';
+import Profile from './pages/Profile';
 
 function App() {
   return (
