@@ -19,6 +19,7 @@ import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
 
+
 function App() {
   return (
     <UserProvider>
