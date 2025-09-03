@@ -1,40 +1,49 @@
-// App.jsx
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import SignInPage from "./pages/SignInPage"; // ← This is the Login Page
-import RegisterPage from "./pages/RegisterPage"; // ← This is the Sign Up Page
-import ResetPasswordPage from "./pages/ResetPasswordPage"; // ← Your new page
-import VoterDashboard from "./pages/VoterDashboard";
-import ElectionsPage from "./pages/ElectionsPage";
-import ElectionDetailsPage from "./pages/ElectionDetailsPage";
-import PositionBallotPage from "./pages/PositionBallotPage";
-import VotingPage from "./pages/VotingPage";
-import Profile from "./pages/Profile";
-import ElectionResults from "./pages/ElectionResults";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import SignInPage from './pages/SignInPage';
+import RegisterPage from './pages/RegisterPage';
+import VoterDashboard from './pages/VoterDashboard';
+import ElectionsPage from './pages/ElectionsPage';
+import VotingPage from './pages/VotingPage';
+import AdminDashboard from './pages/admin/dashboard';
+import AdminUsersPage from './pages/admin/users';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import { UserProvider } from './contexts/UserContext';
+import CreateElectionPage from './pages/admin/CreateElectionPage';
+import ManageElectionPage from './pages/admin/ManageElectionPage';
+import { ElectionProvider } from "./contexts/ElectionContext.jsx";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
-        {/* Authentication Routes (Marion - Assignment #1) */}
-        <Route path="/signin" element={<SignInPage />} /> {/* Login */}
-        <Route path="/register" element={<RegisterPage />} /> {/* Sign Up */}
-        <Route path="/forgot-password" element={<ResetPasswordPage />} />
+    <UserProvider>
+      <ElectionProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/vdashboard" element={<VoterDashboard />} />
+            <Route path="/elections" element={<ElectionsPage />} />
+            <Route path="/elections/:id/vote" element={<VotingPage />} />
+            <Route path="/forgot-password" element={<ResetPasswordPage />} />
         {/* Voter Routes */}
-        <Route path="/vdashboard" element={<VoterDashboard />} />
-        <Route path="/elections" element={<ElectionsPage />} />
-        <Route path="/elections/:id" element={<ElectionDetailsPage />} />
-        <Route
-          path="/elections/:id/positions/:positionId"
-          element={<PositionBallotPage />}
-        />
-        <Route path="/admin/results" element={<ElectionResults />} />
-        <Route path="/elections/:id/vote" element={<VotingPage />} />
-        <Route path="/profile" element={<Profile />} />
-      </Routes>
-    </BrowserRouter>
+            <Route path="/elections/:id" element={<ElectionDetailsPage />} />
+            <Route
+              path="/elections/:id/positions/:positionId"
+              element={<PositionBallotPage />}
+            />
+            <Route path="/admin/results" element={<ElectionResults />} />
+            <Route path="/profile" element={<Profile />} />
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/elections" element={<CreateElectionPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
+          </Routes>
+        </BrowserRouter>
+      </ElectionProvider>
+    </UserProvider>
   );
 }
 
