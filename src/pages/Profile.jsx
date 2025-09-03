@@ -1,0 +1,244 @@
+import React, { useEffect, useState } from "react";
+import {
+  Container,
+  Row,
+  Col,
+  Card,
+  Spinner,
+  Alert,
+  Button,
+  Badge,
+} from "react-bootstrap";
+import {
+  PersonCircle,
+  Envelope,
+  Telephone,
+  Building,
+  Briefcase,
+  CardText,
+} from "react-bootstrap-icons";
+import AppHeader from "../components/AppHeader";
+
+const Profile = () => {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    const fetchMe = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const res = await fetch("http://localhost:3000/api/users/me", {
+          credentials: "include",
+        });
+        if (!res.ok) throw new Error("Failed to load profile");
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error("Profile load error:", err);
+        setError("Failed to load profile. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMe();
+  }, []);
+
+  const renderHeader = () => (
+    <div className="bg-dark text-white py-4">
+      <Container>
+        <Row className="align-items-center">
+          <Col md="auto" className="mb-3 mb-md-0">
+            <PersonCircle size={64} className="me-3" />
+          </Col>
+          <Col>
+            <h2 className="mb-1">
+              {user?.firstName || ""} {user?.lastName || ""}
+            </h2>
+            <div className="d-flex align-items-center gap-2">
+              <Badge bg={user?.isAdmin ? "danger" : "secondary"}>
+                {user?.isAdmin ? "Admin" : "Voter"}
+              </Badge>
+              <small className="text-light-50">
+                Member since{" "}
+                {user?.createdAt
+                  ? new Date(user.createdAt).toLocaleDateString()
+                  : "-"}
+              </small>
+            </div>
+          </Col>
+          <Col md="auto">
+            <Button variant="outline-light" size="sm">
+              Edit Profile
+            </Button>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+
+  return (
+    <div
+      className="profile-page"
+      style={{ minHeight: "100vh", backgroundColor: "#f5f7fb" }}
+    >
+      <AppHeader />
+
+      {loading && (
+        <Container className="py-5">
+          <div className="text-center my-5">
+            <Spinner animation="border" role="status" className="mb-3">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <div>Loading profile...</div>
+          </div>
+        </Container>
+      )}
+
+      {!loading && error && (
+        <Container className="py-4">
+          <Alert variant="danger">{error}</Alert>
+        </Container>
+      )}
+
+      {!loading && !error && user && (
+        <>
+          {renderHeader()}
+
+          <Container className="py-4">
+            <Row className="g-4">
+              {/* Left: Summary Card */}
+              <Col lg={4}>
+                <Card className="shadow-sm">
+                  <Card.Body>
+                    <div className="d-flex align-items-center mb-3">
+                      <PersonCircle size={48} className="me-3 text-primary" />
+                      <div>
+                        <h5 className="mb-0">
+                          {user.firstName} {user.lastName}
+                        </h5>
+                        <small className="text-muted">{user.email}</small>
+                      </div>
+                    </div>
+                    <Row className="g-2">
+                      <Col xs={6}>
+                        <div className="p-2 bg-light rounded text-center">
+                          <div className="small text-muted">Role</div>
+                          <div className="fw-bold">
+                            {user.isAdmin ? "Admin" : "Voter"}
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={6}>
+                        <div className="p-2 bg-light rounded text-center">
+                          <div className="small text-muted">Joined</div>
+                          <div className="fw-bold">
+                            {user.createdAt
+                              ? new Date(user.createdAt).toLocaleDateString()
+                              : "-"}
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              </Col>
+
+              {/* Right: Details */}
+              <Col lg={8}>
+                <Card className="shadow-sm mb-4">
+                  <Card.Header>
+                    <strong>Contact</strong>
+                  </Card.Header>
+                  <Card.Body>
+                    <Row className="g-3">
+                      <Col md={6}>
+                        <div className="d-flex align-items-center">
+                          <Envelope className="me-2 text-muted" />
+                          <div>
+                            <div className="text-muted small">Email</div>
+                            <div className="fw-semibold">{user.email}</div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <div className="d-flex align-items-center">
+                          <Telephone className="me-2 text-muted" />
+                          <div>
+                            <div className="text-muted small">Phone</div>
+                            <div className="fw-semibold">
+                              {user.phone || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+
+                <Card className="shadow-sm">
+                  <Card.Header>
+                    <strong>Academic</strong>
+                  </Card.Header>
+                  <Card.Body>
+                    <Row className="g-3">
+                      <Col md={6}>
+                        <div className="d-flex align-items-center">
+                          <CardText className="me-2 text-muted" />
+                          <div>
+                            <div className="text-muted small">Student ID</div>
+                            <div className="fw-semibold">
+                              {user.studentId || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <div className="d-flex align-items-center">
+                          <Building className="me-2 text-muted" />
+                          <div>
+                            <div className="text-muted small">School</div>
+                            <div className="fw-semibold">
+                              {user.school || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <div className="d-flex align-items-center">
+                          <Briefcase className="me-2 text-muted" />
+                          <div>
+                            <div className="text-muted small">Department</div>
+                            <div className="fw-semibold">
+                              {user.department || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col md={6}>
+                        <div className="d-flex align-items-center">
+                          <CardText className="me-2 text-muted" />
+                          <div>
+                            <div className="text-muted small">
+                              Year Of Study
+                            </div>
+                            <div className="fw-semibold">
+                              {user.yearOfStudy || "-"}
+                            </div>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          </Container>
+        </>
+      )}
+    </div>
+  );
+};
+
+export default Profile;

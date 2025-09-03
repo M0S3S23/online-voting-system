@@ -23,6 +23,7 @@ import {
 } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
+import AppHeader from "../components/AppHeader";
 
 const ElectionsPage = () => {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -117,11 +118,7 @@ const ElectionsPage = () => {
   if (loading) {
     return (
       <div className="elections-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
-        </nav>
+        <AppHeader active="Elections" />
 
         <Container className="py-5">
           <div className="text-center">
@@ -138,11 +135,7 @@ const ElectionsPage = () => {
   if (error) {
     return (
       <div className="elections-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
-        </nav>
+        <AppHeader active="Elections" />
 
         <Container className="py-5">
           <Alert variant="danger" className="d-flex align-items-center">
@@ -162,51 +155,7 @@ const ElectionsPage = () => {
 
   return (
     <div className="elections-page">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-dark bg-dark">
-        <Container>
-          <span className="navbar-brand fw-bold">VoteSecure</span>
-          <div className="d-flex align-items-center">
-            <Nav className="me-4">
-              <Nav.Link as={Link} to="/vdashboard" className="text-white">
-                Dashboard
-              </Nav.Link>
-              <Nav.Link as={Link} to="/elections" className="text-white active">
-                Elections
-              </Nav.Link>
-            </Nav>
-            <div className="dropdown">
-              <button
-                className="btn btn-outline-light dropdown-toggle"
-                type="button"
-                data-bs-toggle="dropdown"
-              >
-                John Smith
-              </button>
-              <ul className="dropdown-menu dropdown-menu-end">
-                <li>
-                  <a className="dropdown-item" href="#profile">
-                    Profile
-                  </a>
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#settings">
-                    Settings
-                  </a>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <a className="dropdown-item" href="#logout">
-                    Logout
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </Container>
-      </nav>
+      <AppHeader active="Elections" />
 
       {/* Main Content */}
       <Container className="py-4">
@@ -247,11 +196,11 @@ const ElectionsPage = () => {
               </Button>
               <Button
                 variant={
-                  activeFilter === "active" ? "primary" : "outline-secondary"
+                  activeFilter === "ongoing" ? "primary" : "outline-secondary"
                 }
-                onClick={() => setActiveFilter("active")}
+                onClick={() => setActiveFilter("ongoing")}
               >
-                Active
+                Ongoing
               </Button>
               <Button
                 variant={

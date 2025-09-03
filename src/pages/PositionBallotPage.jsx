@@ -24,6 +24,7 @@ import {
 } from "react-bootstrap-icons";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import AppHeader from "../components/AppHeader";
 
 const PositionBallotPage = () => {
   const { id, positionId } = useParams();
@@ -145,11 +146,7 @@ const PositionBallotPage = () => {
   if (loading) {
     return (
       <div className="position-ballot-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
-        </nav>
+        <AppHeader active="Elections" />
 
         <Container className="py-5">
           <div className="text-center">
@@ -166,11 +163,7 @@ const PositionBallotPage = () => {
   if (error) {
     return (
       <div className="position-ballot-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
-        </nav>
+        <AppHeader active="Elections" />
 
         <Container className="py-5">
           <Alert variant="danger" className="d-flex align-items-center">
@@ -191,11 +184,7 @@ const PositionBallotPage = () => {
   if (voteSuccess) {
     return (
       <div className="position-ballot-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
-        </nav>
+        <AppHeader active="Elections" />
 
         <Container className="py-5">
           <Alert variant="success" className="text-center">
@@ -215,28 +204,7 @@ const PositionBallotPage = () => {
 
   return (
     <div className="position-ballot-page">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-dark bg-dark">
-        <Container>
-          <span className="navbar-brand fw-bold">VoteSecure</span>
-          <div className="d-flex align-items-center">
-            <Link
-              to={`/elections/${id}`}
-              className="btn btn-outline-light me-3"
-            >
-              <ArrowLeft className="me-1" /> Back to Election
-            </Link>
-            <div className="dropdown">
-              <button
-                className="btn btn-outline-light dropdown-toggle"
-                type="button"
-              >
-                John Smith
-              </button>
-            </div>
-          </div>
-        </Container>
-      </nav>
+      <AppHeader active="Elections" />
 
       {/* Main Content */}
       <Container className="py-4">

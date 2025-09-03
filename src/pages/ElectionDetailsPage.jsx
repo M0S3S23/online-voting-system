@@ -24,6 +24,7 @@ import {
 } from "react-bootstrap-icons";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
+import AppHeader from "../components/AppHeader";
 
 const ElectionDetailsPage = () => {
   const { id } = useParams();
@@ -173,11 +174,7 @@ const ElectionDetailsPage = () => {
   if (loading) {
     return (
       <div className="election-details-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
-        </nav>
+        <AppHeader active="Elections" />
 
         <Container className="py-5">
           <div className="text-center">
@@ -194,24 +191,20 @@ const ElectionDetailsPage = () => {
   if (error) {
     return (
       <div className="election-details-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
+        <AppHeader active="Elections" />
 
-          <Container className="py-5">
-            <Alert variant="danger" className="d-flex align-items-center">
-              <ExclamationTriangle size={32} className="me-3 flex-shrink-0" />
-              <div>
-                <h5 className="mb-1">Error Loading Election</h5>
-                <p className="mb-3">{error}</p>
-                <Button variant="outline-danger" onClick={fetchElectionDetails}>
-                  Try Again
-                </Button>
-              </div>
-            </Alert>
-          </Container>
-        </nav>
+        <Container className="py-5">
+          <Alert variant="danger" className="d-flex align-items-center">
+            <ExclamationTriangle size={32} className="me-3 flex-shrink-0" />
+            <div>
+              <h5 className="mb-1">Error Loading Election</h5>
+              <p className="mb-3">{error}</p>
+              <Button variant="outline-danger" onClick={fetchElectionDetails}>
+                Try Again
+              </Button>
+            </div>
+          </Alert>
+        </Container>
       </div>
     );
   }
@@ -219,46 +212,24 @@ const ElectionDetailsPage = () => {
   if (!election) {
     return (
       <div className="election-details-page">
-        <nav className="navbar navbar-dark bg-dark">
-          <Container>
-            <span className="navbar-brand fw-bold">VoteSecure</span>
-          </Container>
+        <AppHeader active="Elections" />
 
-          <Container className="py-5">
-            <Alert variant="warning">
-              <h5>Election Not Found</h5>
-              <p>The election you're looking for doesn't exist.</p>
-              <Link to="/elections">
-                <Button variant="primary">Back to Elections</Button>
-              </Link>
-            </Alert>
-          </Container>
-        </nav>
+        <Container className="py-5">
+          <Alert variant="warning">
+            <h5>Election Not Found</h5>
+            <p>The election you're looking for doesn't exist.</p>
+            <Link to="/elections">
+              <Button variant="primary">Back to Elections</Button>
+            </Link>
+          </Alert>
+        </Container>
       </div>
     );
   }
 
   return (
     <div className="election-details-page">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-dark bg-dark">
-        <Container>
-          <span className="navbar-brand fw-bold">VoteSecure</span>
-          <div className="d-flex align-items-center">
-            <Link to="/elections" className="btn btn-outline-light me-3">
-              <ArrowLeft className="me-1" /> Back to Elections
-            </Link>
-            <div className="dropdown">
-              <button
-                className="btn btn-outline-light dropdown-toggle"
-                type="button"
-              >
-                John Smith
-              </button>
-            </div>
-          </div>
-        </Container>
-      </nav>
+      <AppHeader active="Elections" />
 
       {/* Main Content */}
       <Container className="py-4">

@@ -9,7 +9,8 @@ import ElectionsPage from "./pages/ElectionsPage";
 import ElectionDetailsPage from "./pages/ElectionDetailsPage";
 import PositionBallotPage from "./pages/PositionBallotPage";
 import VotingPage from "./pages/VotingPage";
-import ElectionResults from "./pages/ElectionResults"; // ← New import
+import Profile from "./pages/Profile";
+import ElectionResults from "./pages/ElectionResults";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         />
         <Route path="/admin/results" element={<ElectionResults />} />
         <Route path="/elections/:id/vote" element={<VotingPage />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );
