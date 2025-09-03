@@ -11,25 +11,30 @@ import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import { UserProvider } from './contexts/UserContext';
 import CreateElectionPage from './pages/admin/CreateElectionPage';
 import ManageElectionPage from './pages/admin/ManageElectionPage';
+import { ElectionProvider } from "./contexts/ElectionContext.jsx";
 
 function App() {
   return (
     <UserProvider>
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/signin" element={<SignInPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/vdashboard" element={<VoterDashboard />} />
-        <Route path="/elections" element={<ElectionsPage />} />
-        <Route path="/elections/:id/vote" element={<VotingPage />} />
-        <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/admin/users" element={<AdminUsersPage />} />
-        <Route path="/admin/elections" element={<CreateElectionPage />} />
-        <Route path="/admin/settings" element={<AdminSettingsPage />} />
-        <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
-      </Routes>
-    </BrowserRouter>
+      <ElectionProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/vdashboard" element={<VoterDashboard />} />
+            <Route path="/elections" element={<ElectionsPage />} />
+            <Route path="/elections/:id/vote" element={<VotingPage />} />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/elections" element={<CreateElectionPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
+          </Routes>
+        </BrowserRouter>
+      </ElectionProvider>
     </UserProvider>
   );
 }

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Button, Card, Row, Col, Table, Modal, Form, Badge, Alert, Spinner } from "react-bootstrap";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { useNavigate } from "react-router-dom";
+import { useElection } from "../../contexts/ElectionContext";
 
 const CreateElectionPage = () => {
+  const { setSelectedElection } = useElection();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -147,13 +149,16 @@ const CreateElectionPage = () => {
                             <td>{election.endDate?.substring(0, 10)}</td>
                             <td className="text-center">
                               <Button
-                                variant="outline-primary"
-                                size="sm"
-                                className="me-2"
-                                onClick={() => navigate(`/admin/elections/${election._id}/manage`)}
-                              >
-                                Manage
-                              </Button>
+        variant="outline-primary"
+        size="sm"
+        className="me-2"
+        onClick={() => {
+          setSelectedElection(election); // 👈 store election in context
+          navigate(`/admin/elections/${election._id}/manage`);
+        }}
+      >
+        Manage
+      </Button>
                               <Button variant="outline-primary" size="sm" className="me-2">
                                 View
                               </Button>

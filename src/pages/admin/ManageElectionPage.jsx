@@ -1,6 +1,7 @@
 // src/pages/admin/ManageElectionPage.jsx
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useElection } from "../../contexts/ElectionContext";
 import {
   Card,
   Button,
@@ -13,24 +14,41 @@ import {
   Tab,
   Spinner,
   Alert,
+  Modal,
 } from "react-bootstrap";
 import AdminLayout from "../../components/admin/AdminLayout";
 
 const ManageElectionPage = () => {
+  // Delete modal state
+const [showDeleteModal, setShowDeleteModal] = useState(false);
+const [positionToDelete, setPositionToDelete] = useState(null);
+
+
+
   const { electionId } = useParams();
-  const [election, setElection] = useState(null);
+  const { selectedElection } = useElection();
+  const [election, setElection] = useState(selectedElection || null);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!selectedElection);
+
+  // Modal state
+  const [showModal, setShowModal] = useState(false);
+  const [newPosition, setNewPosition] = useState({
+    positionName: "",
+    seats: 1,
+    description: "",
+  });
 
   // Fetch election details
   useEffect(() => {
+    // if we already have the election in context, skip fetch
+    if (selectedElection) return;
+
     const fetchElection = async () => {
       try {
         const res = await fetch(
           `http://localhost:3000/api/elections/${electionId}`,
-          {
-            credentials: "include",
-          }
+          { credentials: "include" }
         );
         if (!res.ok) {
           const errData = await res.json().catch(() => ({}));
@@ -45,7 +63,7 @@ const ManageElectionPage = () => {
       }
     };
     fetchElection();
-  }, [electionId]);
+  }, [electionId, selectedElection]);
 
   // Toggle candidate approval
   const toggleCandidateApproval = async (candidateId) => {
@@ -68,6 +86,64 @@ const ManageElectionPage = () => {
       alert(err.message);
     }
   };
+
+  // Handle add position
+  const handleAddPosition = async () => {
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/elections/${electionId}/positions/add`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(newPosition),
+        }
+      );
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to add position");
+      }
+
+      const updated = await res.json();
+      setElection(updated.election); // backend returns updated election
+      setShowModal(false);
+      setNewPosition({ positionName: "", seats: 1, description: "" });
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+
+
+  const handleDeletePosition = async (positionName) => {
+    if (!window.confirm(`Are you sure you want to delete "${positionName}"?`)) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/elections/${electionId}/positions/${positionName}/delete`,
+        {
+          method: "PATCH", // match your backend route
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ positionName }),
+        }
+      );
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to delete position");
+      }
+
+      const updated = await res.json();
+      setElection(updated.election); // update state with new election data
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+
+
 
   if (loading) {
     return (
@@ -175,19 +251,35 @@ const ManageElectionPage = () => {
               <Tab eventKey="positions" title="Positions">
                 <Card style={{ background: cardBg, color: textColor }}>
                   <Card.Body>
-                    <h5 className="mb-3">Positions</h5>
+                    <Row className="mb-3">
+                      <Col>
+                        <h5 className="mb-0">Positions</h5>
+                      </Col>
+                      <Col className="text-end">
+                        <Button
+                          variant="success"
+                          size="sm"
+                          onClick={() => setShowModal(true)}
+                        >
+                          + Add Position
+                        </Button>
+                      </Col>
+                    </Row>
+
                     <Table bordered hover responsive variant={tableVariant}>
                       <thead>
                         <tr>
                           <th>Position</th>
                           <th>Seats</th>
                           <th>Description</th>
+                          <th>Actions</th> {/* New */}
                         </tr>
                       </thead>
+
                       <tbody>
-                        {election.positions.length === 0 ? (
+                        {election.positions?.length === 0 ? (
                           <tr>
-                            <td colSpan="3" className="text-center">
+                            <td colSpan="4" className="text-center">
                               No positions added yet.
                             </td>
                           </tr>
@@ -197,12 +289,25 @@ const ManageElectionPage = () => {
                               <td>{pos.positionName}</td>
                               <td>{pos.seats}</td>
                               <td>{pos.description}</td>
+                              <td className="text-center">
+                                <Button
+  size="sm"
+  variant="danger"
+  onClick={() => {
+    setPositionToDelete(pos.positionName);
+    setShowDeleteModal(true);
+  }}
+>
+  Delete
+</Button>
+
+                              </td>
                             </tr>
                           ))
                         )}
                       </tbody>
+
                     </Table>
-                    <Button variant="success">+ Add Position</Button>
                   </Card.Body>
                 </Card>
               </Tab>
@@ -266,6 +371,120 @@ const ManageElectionPage = () => {
                 </Card>
               </Tab>
             </Tabs>
+
+            {/* Add Position Modal */}
+            <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+              <Modal.Header closeButton>
+                <Modal.Title>Add Position</Modal.Title>
+              </Modal.Header>
+              <Modal.Body>
+                <Form>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Position Name</Form.Label>
+                    <Form.Control
+                      type="text"
+                      value={newPosition.positionName}
+                      onChange={(e) =>
+                        setNewPosition((prev) => ({
+                          ...prev,
+                          positionName: e.target.value,
+                        }))
+                      }
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Seats</Form.Label>
+                    <Form.Control
+                      type="number"
+                      min="1"
+                      value={newPosition.seats}
+                      onChange={(e) =>
+                        setNewPosition((prev) => ({
+                          ...prev,
+                          seats: parseInt(e.target.value, 10),
+                        }))
+                      }
+                    />
+                  </Form.Group>
+                  <Form.Group className="mb-3">
+                    <Form.Label>Description</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      rows={3}
+                      value={newPosition.description}
+                      onChange={(e) =>
+                        setNewPosition((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
+                    />
+                  </Form.Group>
+                </Form>
+              </Modal.Body>
+              <Modal.Footer>
+                <Button variant="secondary" onClick={() => setShowModal(false)}>
+                  Cancel
+                </Button>
+                <Button variant="success" onClick={handleAddPosition}>
+                  Save Position
+                </Button>
+              </Modal.Footer>
+            </Modal>
+
+            {/* Delete Position Modal */}
+<Modal
+  show={showDeleteModal}
+  onHide={() => setShowDeleteModal(false)}
+  centered
+>
+  <Modal.Header closeButton>
+    <Modal.Title>Delete Position</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {positionToDelete && (
+      <p>
+        Are you sure you want to delete the position "<b>{positionToDelete}</b>"?
+      </p>
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+      Cancel
+    </Button>
+    <Button
+      variant="danger"
+      onClick={async () => {
+        try {
+          const res = await fetch(
+            `http://localhost:3000/api/elections/${electionId}/positions/delete`,
+            {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              credentials: "include",
+              body: JSON.stringify({ positionName: positionToDelete }),
+            }
+          );
+
+          if (!res.ok) {
+            const errData = await res.json().catch(() => ({}));
+            throw new Error(errData.message || "Failed to delete position");
+          }
+
+          const updated = await res.json();
+          setElection(updated.election);
+          setShowDeleteModal(false);
+          setPositionToDelete(null);
+        } catch (err) {
+          alert(err.message);
+        }
+      }}
+    >
+      Delete
+    </Button>
+  </Modal.Footer>
+</Modal>
+
           </div>
         );
       }}
