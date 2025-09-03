@@ -25,7 +25,15 @@ function App() {
             <Route path="/vdashboard" element={<VoterDashboard />} />
             <Route path="/elections" element={<ElectionsPage />} />
             <Route path="/elections/:id/vote" element={<VotingPage />} />
-
+            <Route path="/forgot-password" element={<ResetPasswordPage />} />
+        {/* Voter Routes */}
+            <Route path="/elections/:id" element={<ElectionDetailsPage />} />
+            <Route
+              path="/elections/:id/positions/:positionId"
+              element={<PositionBallotPage />}
+            />
+            <Route path="/admin/results" element={<ElectionResults />} />
+            <Route path="/profile" element={<Profile />} />
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />

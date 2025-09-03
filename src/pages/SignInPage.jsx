@@ -100,13 +100,17 @@ const SignInPage = () => {
               <Lock className="me-2" />
               Sign In
             </Button>
+{/* Forgot Password and Registration Links */}
+<div className="text-center">
+  <Link to="/forgot-password" className="text-primary text-decoration-none d-block mb-2">
+    Forgot password?
+  </Link>
+  <span className="text-muted">Don't have an account? </span>
+  <Link to="/register" className="text-primary text-decoration-none">
+    Register to vote
+  </Link>
+</div>
 
-            <p className="text-center">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-primary text-decoration-none">
-                Register to vote
-              </Link>
-            </p>
           </Form>
         </Card>
       </Container>

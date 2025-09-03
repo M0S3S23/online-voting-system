@@ -1,97 +1,114 @@
-import React from 'react';
-import {Link} from 'react-router-dom';
-import { Container, Card, Row, Col, Button, ListGroup, Badge } from 'react-bootstrap';
-import { 
-  PersonCircle, 
-  FileEarmarkText, 
-  Files, 
-  CheckCircle, 
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Container,
+  Card,
+  Row,
+  Col,
+  Button,
+  ListGroup,
+  Badge,
+  Alert,
+  Spinner,
+} from "react-bootstrap";
+import {
+  PersonCircle,
+  FileEarmarkText,
+  Files,
+  CheckCircle,
   ShieldCheck,
   Calendar,
   People,
   BarChart,
   Clock,
-  ArrowRight
-} from 'react-bootstrap-icons';
-import { Nav } from 'react-bootstrap';
-import Footer from '../components/Footer';
+  ArrowRight,
+} from "react-bootstrap-icons";
+import Footer from "../components/Footer";
+import AppHeader from "../components/AppHeader";
 
 const VoterDashboard = () => {
-  // Mock user data
-  const user = {
-    name: "John Smith",
-    id: "VOT001",
+  const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [elections, setElections] = useState([]);
+  const [user, setUser] = useState({
+    name: "",
+    id: "",
     avatar: <PersonCircle size={40} />,
-    status: "Pending Vote"
-  };
+    status: "",
+  });
 
-  // Metrics data
-  const metrics = [
-    { title: "Active Elections", value: 1, icon: <FileEarmarkText size={24} className="text-success" /> },
-    { title: "Total Elections", value: 2, icon: <Files size={24} className="text-primary" /> },
-    { title: "My Participation", value: 0, icon: <CheckCircle size={24} className="text-purple" /> },
-    { title: "Security Score", value: "100%", icon: <ShieldCheck size={24} className="text-warning" /> }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const [electionsRes, meRes] = await Promise.all([
+          fetch("http://localhost:3000/api/elections", {
+            credentials: "include",
+          }),
+          fetch("http://localhost:3000/api/users/me", {
+            credentials: "include",
+          }),
+        ]);
+        if (!electionsRes.ok) throw new Error("Failed to fetch elections");
+        const electionsData = await electionsRes.json();
+        setElections(electionsData || []);
 
-  // Active elections
-  const activeElections = [
-    {
-      title: "Presidential Election 2024",
-      status: "Available",
-      description: "National Presidential Election for the year 2024",
-      stats: [
-        { label: "Total Votes cast", value: "1,247", icon: <People size={16} /> },
-        { label: "Candidates", value: 3, icon: <PersonCircle size={16} /> },
-        { label: "Ends", value: "15/01/2024", icon: <Calendar size={16} /> }
-      ]
-    }
-  ];
+        if (meRes.ok) {
+          const me = await meRes.json();
+          const displayName =
+            [me.firstName, me.lastName].filter(Boolean).join(" ") ||
+            me.email ||
+            "User";
+          setUser((prev) => ({ ...prev, name: displayName }));
+        } else {
+          setUser((prev) => ({ ...prev, name: "User" }));
+        }
+      } catch (err) {
+        console.error("Dashboard load error:", err);
+        setError("Failed to load data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
-  // Recent activity
-  const recentActivity = [
-    { action: "Account Login", description: "Successfully signed in to your account", time: "12:09:30", icon: <FileEarmarkText size={20} className="text-primary" /> },
-    { action: "Security Verification", description: "Account security verified successfully", time: "2 hours ago", icon: <ShieldCheck size={20} className="text-purple" /> }
-  ];
+  const activeElections = elections.filter((e) => e.status === "ongoing");
+  const totalElections = elections.length;
 
   return (
     <div className="voter-dashboard">
-      {/* Navigation Bar */}
-      <nav className="navbar navbar-dark bg-dark">
-        <Container>
-          <span className="navbar-brand fw-bold">VoteSecure</span>
-          <div className="d-flex align-items-center">
-            <Nav className="me-4">
-              <Nav.Link className="text-white">Dashboard</Nav.Link>
-              <Nav.Link as={Link} to={'/elections'} className="text-white">Elections</Nav.Link>
-            </Nav>
-            <div className="dropdown">
-              <button className="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
-                {user.name}
-              </button>
-              <ul className="dropdown-menu dropdown-menu-end">
-                <li><a className="dropdown-item" href="#profile">Profile</a></li>
-                <li><a className="dropdown-item" href="#settings">Settings</a></li>
-                <li><hr className="dropdown-divider" /></li>
-                <li><a className="dropdown-item" href="#logout">Logout</a></li>
-              </ul>
-            </div>
-          </div>
-        </Container>
-      </nav>
+      <AppHeader active="Dashboard" />
 
       {/* Main Content */}
       <Container className="py-4">
+        {loading && (
+          <div className="text-center my-5">
+            <Spinner animation="border" role="status" className="mb-3">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            <div>Loading dashboard...</div>
+          </div>
+        )}
+        {error && (
+          <Alert variant="danger" className="my-3">
+            {error}
+          </Alert>
+        )}
+
         {/* Welcome Section */}
         <Row className="mb-4 align-items-center">
           <Col md="auto" className="me-3">
             {user.avatar}
           </Col>
           <Col>
-            <h2 className="mb-1">Welcome back, {user.name}</h2>
+            <h2 className="mb-1">Welcome{user.name ? `, ${user.name}` : ""}</h2>
             <div className="d-flex align-items-center">
-              <span className="text-muted me-3">Voter ID: {user.id} | Role: Voter</span>
-              <Badge bg="warning" className="text-dark">
-                {user.status}
+              <span className="text-muted me-3">Role: Voter</span>
+              <Badge bg="success" className="text-white">
+                {activeElections.length} active
               </Badge>
             </div>
           </Col>
@@ -99,19 +116,39 @@ const VoterDashboard = () => {
 
         {/* Key Metrics */}
         <Row className="mb-4 g-4">
-          {metrics.map((metric, index) => (
-            <Col key={index} md={3}>
-              <Card className="h-100 border-0 shadow-sm">
-                <Card.Body className="text-center">
-                  <div className="d-flex justify-content-center mb-3">
-                    {metric.icon}
-                  </div>
-                  <h3 className="mb-1">{metric.value}</h3>
-                  <p className="text-muted mb-0">{metric.title}</p>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
+          <Col md={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Body className="text-center">
+                <div className="d-flex justify-content-center mb-3">
+                  <FileEarmarkText size={24} className="text-success" />
+                </div>
+                <h3 className="mb-1">{activeElections.length}</h3>
+                <p className="text-muted mb-0">Active Elections</p>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col md={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Body className="text-center">
+                <div className="d-flex justify-content-center mb-3">
+                  <Files size={24} className="text-primary" />
+                </div>
+                <h3 className="mb-1">{totalElections}</h3>
+                <p className="text-muted mb-0">Total Elections</p>
+              </Card.Body>
+            </Card>
+          </Col>
+          <Col md={4}>
+            <Card className="h-100 border-0 shadow-sm">
+              <Card.Body className="text-center">
+                <div className="d-flex justify-content-center mb-3">
+                  <ShieldCheck size={24} className="text-warning" />
+                </div>
+                <h3 className="mb-1">Secure</h3>
+                <p className="text-muted mb-0">End-to-end encrypted voting</p>
+              </Card.Body>
+            </Card>
+          </Col>
         </Row>
 
         {/* Quick Actions */}
@@ -122,9 +159,17 @@ const VoterDashboard = () => {
                 <FileEarmarkText size={32} className="me-3" />
                 <div>
                   <h5 className="mb-1">Vote Now</h5>
-                  <p className="mb-0 small">Cast your vote in active elections</p>
+                  <p className="mb-0 small">
+                    See available elections and cast your vote
+                  </p>
                 </div>
-                <Button as={Link} to={'/elections'} variant="light" size="sm" className="ms-auto">
+                <Button
+                  as={Link}
+                  to={"/elections"}
+                  variant="light"
+                  size="sm"
+                  className="ms-auto"
+                >
                   Go <ArrowRight size={16} />
                 </Button>
               </Card.Body>
@@ -136,9 +181,17 @@ const VoterDashboard = () => {
                 <BarChart size={32} className="me-3" />
                 <div>
                   <h5 className="mb-1">View Results</h5>
-                  <p className="mb-0 small">Check election outcomes</p>
+                  <p className="mb-0 small">
+                    Check current standings and totals
+                  </p>
                 </div>
-                <Button variant="light" size="sm" className="ms-auto">
+                <Button
+                  as={Link}
+                  to={"/elections"}
+                  variant="light"
+                  size="sm"
+                  className="ms-auto"
+                >
                   Go <ArrowRight size={16} />
                 </Button>
               </Card.Body>
@@ -151,56 +204,84 @@ const VoterDashboard = () => {
           <Col>
             <div className="d-flex justify-content-between align-items-center mb-3">
               <h4>Active Elections</h4>
-              <a href="#view-all" className="text-decoration-none">View All</a>
+              <Link to="/elections" className="text-decoration-none">
+                View All
+              </Link>
             </div>
-            {activeElections.map((election, index) => (
-              <Card key={index} className="mb-3 border-0 shadow-sm">
-                <Card.Body>
-                  <div className="d-flex justify-content-between align-items-start mb-2">
-                    <h5 className="mb-0">{election.title}</h5>
-                    <Badge bg="success">{election.status}</Badge>
-                  </div>
-                  <p className="text-muted mb-3">{election.description}</p>
-                  <Row className="mb-3">
-                    {election.stats.map((stat, i) => (
-                      <Col key={i} xs={4}>
+            {activeElections.length > 0 ? (
+              activeElections.map((election) => (
+                <Card key={election._id} className="mb-3 border-0 shadow-sm">
+                  <Card.Body>
+                    <div className="d-flex justify-content-between align-items-start mb-2">
+                      <h5 className="mb-0">{election.title}</h5>
+                      <Badge bg="success">Ongoing</Badge>
+                    </div>
+                    <p className="text-muted mb-3">{election.description}</p>
+                    <Row className="mb-3">
+                      <Col xs={4}>
                         <div className="d-flex align-items-center">
-                          <span className="me-2">{stat.icon}</span>
+                          <People size={16} className="me-2" />
                           <div>
-                            <small className="text-muted d-block">{stat.label}</small>
-                            <span className="fw-bold">{stat.value}</span>
+                            <small className="text-muted d-block">
+                              Candidates
+                            </small>
+                            <span className="fw-bold">
+                              {(election.candidates || []).length}
+                            </span>
                           </div>
                         </div>
                       </Col>
-                    ))}
-                  </Row>
-                  <Button as={Link} to={'/elections/:id/vote'} variant="primary">Vote Now</Button>
+                      <Col xs={4}>
+                        <div className="d-flex align-items-center">
+                          <Calendar size={16} className="me-2" />
+                          <div>
+                            <small className="text-muted d-block">Ends</small>
+                            <span className="fw-bold">
+                              {new Date(election.endDate).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </Col>
+                      <Col xs={4}>
+                        <div className="d-flex align-items-center">
+                          <Clock size={16} className="me-2" />
+                          <div>
+                            <small className="text-muted d-block">Starts</small>
+                            <span className="fw-bold">
+                              {new Date(
+                                election.startDate
+                              ).toLocaleDateString()}
+                            </span>
+                          </div>
+                        </div>
+                      </Col>
+                    </Row>
+                    <div className="d-flex gap-2">
+                      <Button
+                        as={Link}
+                        to={`/elections/${election._id}`}
+                        variant="primary"
+                      >
+                        View & Vote
+                      </Button>
+                      <Button
+                        as={Link}
+                        to={`/elections/${election._id}`}
+                        variant="outline-primary"
+                      >
+                        View Results
+                      </Button>
+                    </div>
+                  </Card.Body>
+                </Card>
+              ))
+            ) : (
+              <Card className="border-0 shadow-sm">
+                <Card.Body className="text-center text-muted">
+                  No active elections right now.
                 </Card.Body>
               </Card>
-            ))}
-          </Col>
-        </Row>
-
-        {/* Recent Activity */}
-        <Row>
-          <Col>
-            <h4 className="mb-3">Recent Activity</h4>
-            <Card className="border-0 shadow-sm">
-              <ListGroup variant="flush">
-                {recentActivity.map((activity, index) => (
-                  <ListGroup.Item key={index} className="d-flex align-items-center">
-                    <div className="me-3">
-                      {activity.icon}
-                    </div>
-                    <div className="flex-grow-1">
-                      <h6 className="mb-0">{activity.action}</h6>
-                      <small className="text-muted">{activity.description}</small>
-                    </div>
-                    <small className="text-muted">{activity.time}</small>
-                  </ListGroup.Item>
-                ))}
-              </ListGroup>
-            </Card>
+            )}
           </Col>
         </Row>
       </Container>
