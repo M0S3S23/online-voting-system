@@ -20,10 +20,13 @@ import {
   People,
   BarChart,
   ExclamationTriangle,
+  PersonCheck,
+  ClipboardCheck,
 } from "react-bootstrap-icons";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import AppHeader from "../components/AppHeader";
+import CandidateApplicationForm from "../components/form/CandidateApplicationForm";
 
 const ElectionsPage = () => {
   const [activeFilter, setActiveFilter] = useState("all");
@@ -31,10 +34,14 @@ const ElectionsPage = () => {
   const [elections, setElections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+  const [selectedElection, setSelectedElection] = useState(null);
+  const [applicationStatuses, setApplicationStatuses] = useState({});
 
   // Fetch elections from backend
   useEffect(() => {
     fetchElections();
+    fetchApplicationStatuses();
   }, []);
 
   const fetchElections = async () => {
@@ -55,6 +62,88 @@ const ElectionsPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Fetch application statuses for all elections
+  const fetchApplicationStatuses = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+      const response = await fetch("http://localhost:3000/api/elections");
+      if (!response.ok) return;
+      
+      const electionsData = await response.json();
+      const statuses = {};
+      
+      // Check application status for each election
+      await Promise.all(
+        electionsData.map(async (election) => {
+          try {
+            const statusResponse = await fetch(
+              `http://localhost:3000/api/elections/${election._id}/application-status`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                },
+              }
+            );
+            if (statusResponse.ok) {
+              const statusData = await statusResponse.json();
+              statuses[election._id] = statusData;
+            }
+          } catch (err) {
+            // Ignore errors for individual status checks
+            console.log(`No application found for election ${election._id}`);
+          }
+        })
+      );
+      
+      setApplicationStatuses(statuses);
+    } catch (err) {
+      console.error("Error fetching application statuses:", err);
+    }
+  };
+
+  // Handle opening application form
+  const handleApplyClick = (election) => {
+    setSelectedElection(election);
+    setShowApplicationForm(true);
+  };
+
+  // Handle application submission
+  const handleApplicationSubmit = () => {
+    // Refresh application statuses after submission
+    fetchApplicationStatuses();
+  };
+
+  // Get button text and action based on application status
+  const getApplicationButton = (election) => {
+    const status = applicationStatuses[election._id];
+    
+    if (status && status.status !== 'not_found') {
+      // User has already applied
+      return (
+        <Link to={`/candidate/application-status`}>
+          <Button variant="outline-success" size="sm">
+            <ClipboardCheck className="me-1" size={16} />
+            View Application Status
+          </Button>
+        </Link>
+      );
+    }
+    
+    // User hasn't applied yet - show apply button
+    return (
+      <Button
+        variant="outline-primary"
+        size="sm"
+        onClick={() => handleApplyClick(election)}
+      >
+        <PersonCheck className="me-1" size={16} />
+        Apply to Stand
+      </Button>
+    );
   };
 
   // Filter elections based on active filter and search query
@@ -303,7 +392,7 @@ const ElectionsPage = () => {
                       </div>
                     )}
 
-                    {/* Dates and Action Button */}
+                    {/* Dates and Action Buttons */}
                     <div className="d-flex justify-content-between align-items-end">
                       <div>
                         <small className="text-muted d-block">
@@ -313,7 +402,8 @@ const ElectionsPage = () => {
                           Ends: {formatDate(election.endDate)}
                         </small>
                       </div>
-                      <div>
+                      <div className="d-flex gap-2">
+                        {getApplicationButton(election)}
                         {election.status === "ongoing" ? (
                           <Link to={`/elections/${election._id}`}>
                             <Button variant="primary">View & Vote</Button>
@@ -367,6 +457,17 @@ const ElectionsPage = () => {
 
       {/* Footer */}
       <Footer />
+      
+      {/* Candidate Application Form Modal */}
+      <CandidateApplicationForm
+        show={showApplicationForm && selectedElection !== null}
+        onHide={() => {
+          setShowApplicationForm(false);
+          setSelectedElection(null);
+        }}
+        election={selectedElection}
+        onApplicationSubmit={handleApplicationSubmit}
+      />
     </div>
   );
 };
