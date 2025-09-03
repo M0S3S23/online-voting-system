@@ -17,6 +17,7 @@ import ElectionDetailsPage from './pages/ElectionDetailsPage';
 import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
+import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
             />
             <Route path="/admin/results" element={<ElectionResults />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
