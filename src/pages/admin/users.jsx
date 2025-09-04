@@ -49,29 +49,33 @@ const AdminUsersPage = () => {
     }
   };
 
-  // Toggle admin status
-  const toggleAdmin = async (userId) => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/admin/users/${userId}/toggle-admin`,
-        {
-          method: "PATCH",
-          credentials: "include",
-        }
-      );
+// Toggle admin status
+const toggleAdmin = async (userId, isCurrentlyAdmin) => {
+  try {
+    const endpoint = isCurrentlyAdmin
+      ? `http://localhost:3000/api/users/revoke-admin/${userId}`
+      : `http://localhost:3000/api/users/make-admin/${userId}`;
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to update user");
-      }
+    const res = await fetch(endpoint, {
+      method: "PATCH",
+      credentials: "include",
+    });
 
-      setUsers((prev) =>
-        prev.map((u) => (u._id === userId ? { ...u, isAdmin: !u.isAdmin } : u))
-      );
-    } catch (err) {
-      alert(err.message);
+    if (!res.ok) {
+      const errData = await res.json().catch(() => ({}));
+      throw new Error(errData.message || "Failed to update user");
     }
-  };
+
+    setUsers((prev) =>
+      prev.map((u) =>
+        u._id === userId ? { ...u, isAdmin: !u.isAdmin } : u
+      )
+    );
+  } catch (err) {
+    alert(err.message);
+  }
+};
+
 
   return (
     <AdminLayout>
@@ -132,7 +136,7 @@ const AdminUsersPage = () => {
                               size="sm"
                               variant={user.isAdmin ? "warning" : "success"}
                               className="me-2"
-                              onClick={() => toggleAdmin(user._id)}
+                              onClick={() => toggleAdmin(user._id, user.isAdmin)}
                             >
                               {user.isAdmin ? "Revoke Admin" : "Make Admin"}
                             </Button>

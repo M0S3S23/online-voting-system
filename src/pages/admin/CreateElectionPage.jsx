@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 import { useElection } from "../../contexts/ElectionContext";
 
 const CreateElectionPage = () => {
+  
+  const [viewModal, setViewModal] = useState(false);
+  const [viewElection, setViewElection] = useState(null);
+
   const { setSelectedElection } = useElection();
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
@@ -20,28 +24,29 @@ const CreateElectionPage = () => {
   const [error, setError] = useState("");
 
   // Fetch elections from backend
-  useEffect(() => {
-    const fetchElections = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch("http://localhost:3000/api/elections/", {
-          method: "GET",
-          credentials: "include",
-        });
+  const fetchElections = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:3000/api/elections/", {
+        method: "GET",
+        credentials: "include",
+      });
 
-        if (!res.ok) {
-          const errData = await res.json().catch(() => ({}));
-          throw new Error(errData.message || "Failed to fetch elections");
-        }
-
-        const data = await res.json();
-        setElections(data); // directly set elections
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to fetch elections");
       }
-    };
+
+      const data = await res.json();
+      setElections(data); // directly set elections
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
 
     fetchElections();
   }, []);
@@ -51,22 +56,56 @@ const CreateElectionPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle form submit (just updates local state for now)
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: send POST request to backend (when endpoint ready)
-    const newElection = {
-      _id: Date.now().toString(), // temp id
-      title: formData.title,
-      description: formData.description,
-      status: "upcoming",
-      startDate: formData.startDate,
-      endDate: formData.endDate,
-    };
-    setElections((prev) => [newElection, ...prev]);
-    setShowModal(false);
-    setFormData({ title: "", description: "", startDate: "", endDate: "" });
+    try {
+      const res = await fetch("http://localhost:3000/api/elections/createElection", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to create election");
+      }
+
+      await res.json(); // consume response but ignore return
+      await fetchElections(); //
+
+      setShowModal(false);
+      setFormData({
+        title: "",
+        description: "",
+        startDate: "",
+        endDate: "",
+      });
+    } catch (err) {
+      alert(err.message);
+    }
   };
+
+  // Delete election using endpoint http://localhost:3000/api/elections/:id/deleteElection
+  const handleDelete = async (electionId) => {
+    if (!window.confirm("Are you sure you want to delete this election?")) return;
+    try {
+      const res = await fetch(`http://localhost:3000/api/elections/${electionId}/deleteElection`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        console.log(errData);
+        throw new Error(errData.message || "Failed to delete election");
+      }
+      setElections((prev) => prev.filter((e) => e._id !== electionId));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
 
   // Map status to badge theme
   const statusColor = (status) => {
@@ -149,20 +188,27 @@ const CreateElectionPage = () => {
                             <td>{election.endDate?.substring(0, 10)}</td>
                             <td className="text-center">
                               <Button
-        variant="outline-primary"
-        size="sm"
-        className="me-2"
-        onClick={() => {
-          setSelectedElection(election); // 👈 store election in context
-          navigate(`/admin/elections/${election._id}/manage`);
-        }}
-      >
-        Manage
-      </Button>
-                              <Button variant="outline-primary" size="sm" className="me-2">
-                                View
+                                variant="outline-primary"
+                                size="sm"
+                                className="me-2"
+                                onClick={() => {
+                                  setSelectedElection(election); // 👈 store election in context
+                                  navigate(`/admin/elections/${election._id}/manage`);
+                                }}
+                              >
+                                Manage
                               </Button>
-                              <Button variant="outline-danger" size="sm">
+                              <Button
+  variant="outline-primary"
+  size="sm"
+  className="me-2"
+  onClick={() => navigate(`/admin/elections/${election._id}/view`)}
+>
+  View
+</Button>
+
+
+                              <Button variant="outline-danger" size="sm" onClick={() => handleDelete(election._id)}>
                                 Delete
                               </Button>
                             </td>
@@ -286,6 +332,121 @@ const CreateElectionPage = () => {
                 </Form>
               </Modal.Body>
             </Modal>
+
+
+        {/* View Election Modal */}
+<Modal show={viewModal} onHide={() => setViewModal(false)} centered size="lg">
+  <Modal.Header closeButton className={headerClass}>
+    <Modal.Title>Election Details</Modal.Title>
+  </Modal.Header>
+  <Modal.Body style={{ background: cardBg, color: textColor }}>
+    {viewElection ? (
+      <>
+        {/* Basic Info */}
+        <h5 className="fw-bold">{viewElection.title}</h5>
+        <p className="text-muted">{viewElection.description}</p>
+
+        <Row className="mb-3">
+          <Col>
+            <strong>Status: </strong>
+            <Badge
+              bg={statusColor(viewElection.status)}
+              className="px-3 py-2 text-capitalize"
+            >
+              {viewElection.status}
+            </Badge>
+          </Col>
+        </Row>
+
+        <Row className="mb-3">
+          <Col>
+            <strong>Start Date:</strong>{" "}
+            {viewElection.startDate?.substring(0, 10)}
+          </Col>
+          <Col>
+            <strong>End Date:</strong>{" "}
+            {viewElection.endDate?.substring(0, 10)}
+          </Col>
+        </Row>
+
+        {/* Positions Section */}
+        <h6 className="fw-bold mt-4">Positions</h6>
+        {viewElection.positions?.length > 0 ? (
+          <Table bordered size="sm" className="mt-2">
+            <thead>
+              <tr className={tableHeader}>
+                <th>Position</th>
+                <th>Seats</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {viewElection.positions.map((pos, i) => (
+                <tr key={i}>
+                  <td>{pos.positionName}</td>
+                  <td>{pos.seats}</td>
+                  <td>{pos.description}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <p className="text-muted">No positions added yet.</p>
+        )}
+
+        {/* Candidates Section */}
+        <h6 className="fw-bold mt-4">Candidates</h6>
+        {viewElection.candidates?.length > 0 ? (
+          <Table bordered hover responsive size="sm" className="mt-2">
+            <thead>
+              <tr className={tableHeader}>
+                <th>Name / User ID</th>
+                <th>Party</th>
+                <th>Position</th>
+                <th>Approved</th>
+              </tr>
+            </thead>
+            <tbody>
+              {viewElection.candidates.map((c, i) => (
+                <tr key={i}>
+                  <td>{c.userId}</td> {/* Ideally you'd populate with user's name */}
+                  <td>{c.party}</td>
+                  <td>{c.position}</td>
+                  <td>
+                    <Badge bg={c.approved ? "success" : "warning"}>
+                      {c.approved ? "Approved" : "Pending"}
+                    </Badge>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        ) : (
+          <p className="text-muted">No candidates yet.</p>
+        )}
+
+        {/* Votes Section */}
+        <h6 className="fw-bold mt-4">Votes</h6>
+        {viewElection.votes?.length > 0 ? (
+          <p>
+            <strong>Total Votes:</strong> {viewElection.votes.length}
+          </p>
+        ) : (
+          <p className="text-muted">No votes recorded yet.</p>
+        )}
+      </>
+    ) : (
+      <p>No election selected.</p>
+    )}
+  </Modal.Body>
+  <Modal.Footer style={{ background: cardBg }}>
+    <Button variant="secondary" onClick={() => setViewModal(false)}>
+      Close
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
           </div>
         );
       }}

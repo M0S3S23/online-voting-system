@@ -18,6 +18,7 @@ import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
+import ViewElectionPage from './pages/admin/ViewElectionPage';
 
 
 function App() {
@@ -48,6 +49,8 @@ function App() {
             <Route path="/admin/elections" element={<CreateElectionPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
+            <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
+
           </Routes>
         </BrowserRouter>
       </ElectionProvider>
