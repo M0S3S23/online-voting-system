@@ -119,6 +119,11 @@ const ElectionsPage = () => {
 
   // Get button text and action based on application status
   const getApplicationButton = (election) => {
+    // Only show application buttons for upcoming elections
+    if (election.status !== 'upcoming') {
+      return null;
+    }
+
     const status = applicationStatuses[election._id];
     
     if (status && status.status !== 'not_found') {
