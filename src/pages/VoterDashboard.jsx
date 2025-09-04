@@ -1,3 +1,4 @@
+// src/pages/VoterDashboard.jsx
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -15,13 +16,13 @@ import {
   PersonCircle,
   FileEarmarkText,
   Files,
-  CheckCircle,
   ShieldCheck,
   Calendar,
   People,
   BarChart,
   Clock,
   ArrowRight,
+  Bell,
 } from "react-bootstrap-icons";
 import Footer from "../components/Footer";
 import AppHeader from "../components/AppHeader";
@@ -98,18 +99,22 @@ const VoterDashboard = () => {
           </Alert>
         )}
 
-        {/* Welcome Section */}
+        {/* Welcome Section with Notifications Link */}
         <Row className="mb-4 align-items-center">
           <Col md="auto" className="me-3">
             {user.avatar}
           </Col>
           <Col>
-            <h2 className="mb-1">Welcome{user.name ? `, ${user.name}` : ""}</h2>
-            <div className="d-flex align-items-center">
-              <span className="text-muted me-3">Role: Voter</span>
+            <div className="d-flex flex-wrap align-items-center gap-3">
+              <h2 className="mb-1">Welcome{user.name ? `, ${user.name}` : ""}</h2>
+              <span className="text-muted">Role: Voter</span>
               <Badge bg="success" className="text-white">
                 {activeElections.length} active
               </Badge>
+              {/* Notifications Link */}
+              <Link to="/notifications" className="btn btn-outline-primary btn-sm d-flex align-items-center">
+                <Bell size={16} className="me-1" /> Notifications
+              </Link>
             </div>
           </Col>
         </Row>
@@ -165,7 +170,7 @@ const VoterDashboard = () => {
                 </div>
                 <Button
                   as={Link}
-                  to={"/elections"}
+                  to="/elections"
                   variant="light"
                   size="sm"
                   className="ms-auto"
@@ -187,7 +192,7 @@ const VoterDashboard = () => {
                 </div>
                 <Button
                   as={Link}
-                  to={"/elections"}
+                  to="/elections"
                   variant="light"
                   size="sm"
                   className="ms-auto"
@@ -222,9 +227,7 @@ const VoterDashboard = () => {
                         <div className="d-flex align-items-center">
                           <People size={16} className="me-2" />
                           <div>
-                            <small className="text-muted d-block">
-                              Candidates
-                            </small>
+                            <small className="text-muted d-block">Candidates</small>
                             <span className="fw-bold">
                               {(election.candidates || []).length}
                             </span>
@@ -248,9 +251,7 @@ const VoterDashboard = () => {
                           <div>
                             <small className="text-muted d-block">Starts</small>
                             <span className="fw-bold">
-                              {new Date(
-                                election.startDate
-                              ).toLocaleDateString()}
+                              {new Date(election.startDate).toLocaleDateString()}
                             </span>
                           </div>
                         </div>

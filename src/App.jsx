@@ -1,3 +1,4 @@
+// App.jsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import SignInPage from './pages/SignInPage';
@@ -11,7 +12,7 @@ import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 import { UserProvider } from './contexts/UserContext';
 import CreateElectionPage from './pages/admin/CreateElectionPage';
 import ManageElectionPage from './pages/admin/ManageElectionPage';
-import { ElectionProvider } from "./contexts/ElectionContext.jsx";
+import { ElectionProvider } from './contexts/ElectionContext.jsx';
 import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
 import ElectionDetailsPage from './pages/ElectionDetailsPage';
 import PositionBallotPage from './pages/PositionBallotPage';
@@ -19,7 +20,7 @@ import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
-
+import NotificationsPage from './pages/NotificationsPage'; // ✅ merged in from feature branch
 
 function App() {
   return (
@@ -27,22 +28,22 @@ function App() {
       <ElectionProvider>
         <BrowserRouter>
           <Routes>
+            {/* Public Routes */}
             <Route path="/" element={<HomePage />} />
             <Route path="/signin" element={<SignInPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ResetPasswordPage />} />
+
+            {/* Voter Routes */}
             <Route path="/vdashboard" element={<VoterDashboard />} />
             <Route path="/elections" element={<ElectionsPage />} />
-            <Route path="/elections/:id/vote" element={<VotingPage />} />
-            <Route path="/forgot-password" element={<ResetPasswordPage />} />
-        {/* Voter Routes */}
             <Route path="/elections/:id" element={<ElectionDetailsPage />} />
-            <Route
-              path="/elections/:id/positions/:positionId"
-              element={<PositionBallotPage />}
-            />
-            <Route path="/admin/results" element={<ElectionResults />} />
+            <Route path="/elections/:id/positions/:positionId" element={<PositionBallotPage />} />
+            <Route path="/elections/:id/vote" element={<VotingPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<NotificationsPage />} /> {/* ✅ keep this */}
             <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
+
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
@@ -50,7 +51,7 @@ function App() {
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
             <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
-
+            <Route path="/admin/results" element={<ElectionResults />} />
           </Routes>
         </BrowserRouter>
       </ElectionProvider>
