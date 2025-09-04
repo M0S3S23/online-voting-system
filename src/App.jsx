@@ -17,8 +17,13 @@ import ElectionDetailsPage from './pages/ElectionDetailsPage';
 import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
-import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
+import ApplicationStatus from './pages/candidate/ApplicationStatus';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
+import CandidateDashboard from './pages/candidate/CandidateApplicationStatus.jsx';
+import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
+import ElectionDetails from './pages/candidate/ElectionDetails.jsx';
+import ProfileManifesto from './pages/candidate/ProfileManifesto.jsx';
+import VotingStatistics from './pages/candidate/VotingStatistics.jsx';
 
 
 function App() {
@@ -42,7 +47,7 @@ function App() {
             />
             <Route path="/admin/results" element={<ElectionResults />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
+            <Route path="/candidate/application-status" element={<ApplicationStatus />} />
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/users" element={<AdminUsersPage />} />
@@ -50,6 +55,12 @@ function App() {
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
             <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
+            {/* Candidate Routes */}
+            <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+            <Route path="/candidate/application-status1" element={<CandidateApplicationStatus />} />
+            <Route path="/candidate/elections/:id/details" element={<ElectionDetails />} />
+            <Route path="/candidate/profile/manifesto" element={<ProfileManifesto />} />
+            <Route path="/candidate/voting-statistics" element={<VotingStatistics />} />
 
           </Routes>
         </BrowserRouter>

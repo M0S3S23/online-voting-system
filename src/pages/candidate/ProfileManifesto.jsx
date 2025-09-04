@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { Row, Col, Card, Button, Image, Form } from "react-bootstrap";
-import { PencilSquare } from "react-bootstrap-icons";
+import React, { useState, useEffect } from "react";
+import { Row, Col, Card, Button, Image, Form, Spinner, Alert } from "react-bootstrap";
+import { PencilSquare, Person } from "react-bootstrap-icons";
 import Sidebar from "../../components/Sidebar";
 
 // Define a consistent color theme
@@ -19,32 +19,84 @@ const theme = {
     pending: "#ffc107",
 };
 
-// Mock data
-const mockData = {
-    name: "John Smith",
-    email: "john.smith@example.com",
-    phone: "+260-971-123456",
-    address: "123 University Drive, Lusaka, Zambia",
-    bio: "A passionate and dedicated student leader with a vision for positive change. I am committed to improving campus life and fostering a more inclusive community for everyone.",
-    manifesto: "My manifesto is built on three pillars: Transparency, Innovation, and Inclusivity. I pledge to make student council activities more accessible, introduce a digital suggestion box for students, and create more opportunities for student clubs and organizations. Together, we can build a better future for our campus.",
-    photoUrl: "https://placehold.co/200",
-};
-
 const ProfileManifesto = () => {
-    const [candidateData, setCandidateData] = useState(mockData);
+    const [candidateData, setCandidateData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    const handleEdit = (field, value) => {
-        setCandidateData(prevData => ({ ...prevData, [field]: value }));
-    };
+    useEffect(() => {
+        const fetchProfileData = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    setError("Authentication token not found. Please log in.");
+                    setLoading(false);
+                    return;
+                }
+
+                // New backend endpoint to fetch candidate profile data
+                const response = await fetch("http://localhost:3000/api/candidates/profile", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch profile data.");
+                }
+
+                const result = await response.json();
+                setCandidateData(result);
+            } catch (err) {
+                setError("Failed to load profile data. Please try again.");
+                console.error("Fetch error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfileData();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                <Alert variant="danger" className="w-50 text-center">
+                    {error}
+                </Alert>
+            </div>
+        );
+    }
+
+    if (!candidateData) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                <Alert variant="info" className="w-50 text-center">
+                    No candidate profile found.
+                </Alert>
+            </div>
+        );
+    }
+
+    // Since our schema only has firstName, lastName, email, manifesto, and poster,
+    // we'll remove phone, address, and bio from the display.
+    const { firstName, lastName, email, manifesto, poster } = candidateData;
 
     return (
         <div className="d-flex" style={{ minHeight: "100vh", background: "#f4f6fa" }}>
-            {/* Sidebar */}
             <Sidebar activeLink="profile-manifesto" />
-
-            {/* Main Content */}
             <div className="flex-grow-1 p-4">
-                {/* Header */}
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h2 className="mb-0">Profile & Manifesto</h2>
@@ -52,18 +104,23 @@ const ProfileManifesto = () => {
                     </div>
                 </div>
 
-                {/* Profile and Contact Information */}
                 <Row className="g-4 mb-4">
                     <Col md={4}>
                         <Card style={{ boxShadow: theme.cardShadow }}>
                             <Card.Body className="d-flex flex-column align-items-center text-center">
-                                <Image
-                                    src={candidateData.photoUrl}
-                                    roundedCircle
-                                    fluid
-                                    style={{ width: "150px", height: "150px", objectFit: "cover" }}
-                                />
-                                <h4 className="mt-3 mb-1">{candidateData.name}</h4>
+                                {poster ? (
+                                    <Image
+                                        src={poster}
+                                        roundedCircle
+                                        fluid
+                                        style={{ width: "150px", height: "150px", objectFit: "cover" }}
+                                    />
+                                ) : (
+                                    <div className="rounded-circle bg-secondary d-flex justify-content-center align-items-center" style={{ width: "150px", height: "150px" }}>
+                                        <Person size={75} color="#fff" />
+                                    </div>
+                                )}
+                                <h4 className="mt-3 mb-1">{firstName} {lastName}</h4>
                                 <p className="text-muted">Student Council Candidate</p>
                                 <Button variant="outline-primary" size="sm" className="mt-2">
                                     <PencilSquare className="me-2" />
@@ -81,42 +138,26 @@ const ProfileManifesto = () => {
                                     <Form.Group as={Row} className="mb-3">
                                         <Form.Label column sm="3">Email</Form.Label>
                                         <Col sm="9">
-                                            <Form.Control plaintext readOnly defaultValue={candidateData.email} />
-                                        </Col>
-                                    </Form.Group>
-                                    <Form.Group as={Row} className="mb-3">
-                                        <Form.Label column sm="3">Phone</Form.Label>
-                                        <Col sm="9">
-                                            <Form.Control plaintext readOnly defaultValue={candidateData.phone} />
-                                        </Col>
-                                    </Form.Group>
-                                    <Form.Group as={Row} className="mb-3">
-                                        <Form.Label column sm="3">Address</Form.Label>
-                                        <Col sm="9">
-                                            <Form.Control plaintext readOnly defaultValue={candidateData.address} />
+                                            <Form.Control plaintext readOnly defaultValue={email} />
                                         </Col>
                                     </Form.Group>
                                 </Form>
                                 <Button variant="primary" className="mt-3">
                                     <PencilSquare className="me-2" />
-                                    Update Contact Info
+                                    Update Profile
                                 </Button>
                             </Card.Body>
                         </Card>
                     </Col>
                 </Row>
 
-                {/* Bio and Manifesto */}
                 <Row className="g-4">
                     <Col md={12}>
                         <Card style={{ boxShadow: theme.cardShadow }}>
                             <Card.Body>
-                                <Card.Title>About Me</Card.Title>
+                                <Card.Title>My Manifesto</Card.Title>
                                 <hr />
-                                <p>{candidateData.bio}</p>
-                                <Card.Title className="mt-4">My Manifesto</Card.Title>
-                                <hr />
-                                <p style={{ whiteSpace: "pre-line" }}>{candidateData.manifesto}</p>
+                                <p style={{ whiteSpace: "pre-line" }}>{manifesto || "No manifesto provided."}</p>
                                 <Button variant="primary" className="mt-3">
                                     <PencilSquare className="me-2" />
                                     Edit Manifesto

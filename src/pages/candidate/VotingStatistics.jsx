@@ -1,190 +1,215 @@
-import React, { useState } from "react";
-import { Row, Col, Card, Nav, Button } from "react-bootstrap";
-import { Person, ClipboardCheck, FileEarmarkCheck, GraphUp, Bell, ArrowRight, Wallet, InfoCircle, Gear, BoxArrowRight, HouseDoor, Speedometer, BarChartLine, ClockHistory, CalendarEvent } from "react-bootstrap-icons";
-import { Line, Pie } from "react-chartjs-2";
-import "chart.js/auto";
+import React, { useState, useEffect } from "react";
+import { 
+  Container, 
+  Row, 
+  Col, 
+  Card, 
+  Alert, 
+  Badge, 
+  Spinner, 
+  Button,
+} from "react-bootstrap";
+import { 
+  ClipboardCheck, 
+  Person, 
+  BarChartLine, 
+  Clock,
+  XCircle,
+  CheckCircle,
+  InfoCircle
+} from "react-bootstrap-icons";
+import { useNavigate } from "react-router-dom";
+import AppHeader from "../../components/AppHeader";
+import Footer from "../../components/Footer";
 import Sidebar from "../../components/Sidebar";
+import { Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from 'chart.js';
 
-// Define a consistent color theme
-const theme = {
-    sidebarBg: "#212529",
-    sidebarText: "#f8f9fa",
-    primary: "#0d6efd",
-    accent: "#6610f2",
-    success: "#198754",
-    danger: "#dc3545",
-    cardBg: "#ffffff",
-    cardShadow: "0 0.5rem 1rem rgba(0,0,0,0.05)",
-    navbarBg: "#f8f9fa",
-    headerBg: "#e9ecef",
-    progressComplete: "#198754",
-    pending: "#ffc107",
-};
-
-// Mock data to simulate real-time updates and API calls
-const mockData = {
-    candidate: {
-        name: "John Smith",
-        totalVotes: 847,
-        votePercentage: 31.5,
-        rank: 1,
-    },
-    election: {
-        timeRemaining: "2 Days, 14 Hours",
-        registeredVoters: 1250,
-        votesCast: 847,
-        turnout: 67.8,
-    },
-    voteTrends: {
-        labels: ["10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00"],
-        datasets: [
-            {
-                label: "Votes Received",
-                data: [50, 80, 150, 165, 178, 250, 315],
-                fill: true,
-                backgroundColor: "rgba(13, 110, 253, 0.2)",
-                borderColor: "#0d6efd",
-                tension: 0.3,
-            },
-        ],
-    },
-    competition: {
-        labels: ["You", "Bob Smith", "Carol Davis", "David Wilson", "Others"],
-        datasets: [
-            {
-                data: [847, 750, 520, 480, 250],
-                backgroundColor: ["#0d6efd", "#ffc107", "#fd7e14", "#20c997", "#adb5bd"],
-                hoverOffset: 4,
-            },
-        ],
-    },
-};
+ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 const VotingStatistics = () => {
-    const [data] = useState(mockData);
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-    // Reusable function to get status variant for badges/colors
-    const getStatusVariant = (status) => {
-        switch (status.toLowerCase()) {
-            case "completed":
-            case "ongoing":
-            case "active":
-                return "success";
-            case "upcoming":
-                return "info";
-            case "cancelled":
-                return "danger";
-            default:
-                return "secondary";
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError("");
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/signin");
+        return;
+      }
+
+      const response = await fetch("http://localhost:3000/api/candidates/dashboard", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          setData({ candidate: null }); 
+        } else {
+          throw new Error(`Failed to fetch dashboard data with status: ${response.status}`);
         }
-    };
+      } else {
+        const result = await response.json();
+        setData(result);
+      }
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+      setError("Failed to load dashboard data. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  const getStatusBadge = (status) => {
+    switch (status.toLowerCase()) {
+      case 'approved':
+        return <Badge bg="success">Approved</Badge>;
+      case 'pending':
+        return <Badge bg="warning">Pending Review</Badge>;
+      case 'rejected':
+        return <Badge bg="danger">Rejected</Badge>;
+      default:
+        return <Badge bg="secondary">Unknown</Badge>;
+    }
+  };
+
+  if (loading) {
     return (
-        <div className="d-flex" style={{ minHeight: "100vh", background: "#f4f6fa" }}>
-            {/* Sidebar */}
-            <Sidebar activeLink="voting-statistics" />
-
-            {/* Main Content */}
-            <div className="flex-grow-1 p-4">
-                {/* Header */}
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h2 className="mb-0">Voting Statistics</h2>
-                        <p className="text-muted">Analyze key voting trends and competition data</p>
-                    </div>
-                </div>
-
-                {/* Key Metrics Cards */}
-                <Row className="g-4 mb-4">
-                    <Col md={4}>
-                        <Card style={{ boxShadow: theme.cardShadow }}>
-                            <Card.Body>
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <Card.Title>Total Votes</Card.Title>
-                                        <Card.Text as="div"><h3 style={{ color: theme.primary }}>{data.candidate.totalVotes}</h3></Card.Text>
-                                    </div>
-                                    <ClipboardCheck size={36} color={theme.primary} />
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col md={4}>
-                        <Card style={{ boxShadow: theme.cardShadow }}>
-                            <Card.Body>
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <Card.Title>Vote Percentage</Card.Title>
-                                        <Card.Text as="div">
-                                            <h3 style={{ color: theme.accent }}>{data.candidate.votePercentage}%</h3>
-                                        </Card.Text>
-                                    </div>
-                                    <BarChartLine size={36} color={theme.accent} />
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col md={4}>
-                        <Card style={{ boxShadow: theme.cardShadow }}>
-                            <Card.Body>
-                                <div className="d-flex justify-content-between align-items-center">
-                                    <div>
-                                        <Card.Title>Current Rank</Card.Title>
-                                        <Card.Text as="div">
-                                            <h3 style={{ color: theme.success }}>#{data.candidate.rank}</h3>
-                                        </Card.Text>
-                                    </div>
-                                    <Person size={36} color={theme.success} />
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-
-                {/* Charts Section */}
-                <Row className="g-4">
-                    <Col md={8}>
-                        <Card style={{ boxShadow: theme.cardShadow }}>
-                            <Card.Header style={{ background: theme.headerBg }}>
-                                <h5 className="mb-0">Vote Trend Analysis</h5>
-                                <p className="text-muted mb-0">Votes received over the last 7 hours</p>
-                            </Card.Header>
-                            <Card.Body>
-                                <Line
-                                    data={data.voteTrends}
-                                    options={{
-                                        responsive: true,
-                                        plugins: {
-                                            legend: { display: false },
-                                            title: { display: false },
-                                        },
-                                    }}
-                                />
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                    <Col md={4}>
-                        <Card style={{ boxShadow: theme.cardShadow }}>
-                            <Card.Header style={{ background: theme.headerBg }}>
-                                <h5 className="mb-0">Competition Overview</h5>
-                            </Card.Header>
-                            <Card.Body>
-                                <Pie
-                                    data={data.competition}
-                                    options={{
-                                        responsive: true,
-                                        plugins: {
-                                            legend: { position: "bottom" },
-                                        },
-                                    }}
-                                />
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                </Row>
-            </div>
-        </div>
+      <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
     );
+  }
+
+  if (error) {
+    return (
+      <Container className="py-5">
+        <Alert variant="danger">
+          <h5>Error Loading Dashboard</h5>
+          <p>{error}</p>
+          <Button variant="outline-danger" onClick={fetchDashboardData}>
+            Try Again
+          </Button>
+        </Alert>
+      </Container>
+    );
+  }
+
+  const hasApplication = data && data.candidate;
+  
+  return (
+    <div className="d-flex" style={{ minHeight: "100vh", background: "#f4f6fa" }}>
+      <Sidebar />
+      <div className="flex-grow-1 p-4">
+        <AppHeader />
+        <Container fluid className="mt-4">
+          <h1 className="mb-4">Voting Statistics</h1>
+          
+          {!hasApplication ? (
+            <Card className="text-center py-5">
+              <Card.Body>
+                <Person size={48} className="text-muted mb-3" />
+                <h5 className="text-muted">No Applications Found</h5>
+                <p className="text-muted">You haven't applied for any candidate positions yet.</p>
+                <Button 
+                  variant="primary" 
+                  onClick={() => navigate('/elections')}
+                >
+                  Browse Elections
+                </Button>
+              </Card.Body>
+            </Card>
+          ) : (
+            <>
+              {/* Key Metrics Cards */}
+              <Row className="g-4 mb-4">
+                <Col md={4}>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Total Votes</Card.Title>
+                      <h3 className="text-primary">{data.candidate.totalVotes}</h3>
+                      <ClipboardCheck size={36} className="text-primary" />
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={4}>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Your Rank</Card.Title>
+                      <h3 className="text-success">{data.candidate.rank}</h3>
+                      <Person size={36} className="text-success" />
+                    </Card.Body>
+                  </Card>
+                </Col>
+                <Col md={4}>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Application Status</Card.Title>
+                      <h4>{getStatusBadge(data.candidate.applicationStatus)}</h4>
+                      {data.candidate.applicationStatus.toLowerCase() === 'approved' ? <CheckCircle size={36} className="text-success" /> :
+                       data.candidate.applicationStatus.toLowerCase() === 'pending' ? <Clock size={36} className="text-warning" /> :
+                       <XCircle size={36} className="text-danger" />}
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+
+              {/* Competition Chart */}
+              <Row className="mb-4">
+                <Col>
+                  <Card>
+                    <Card.Body>
+                      <Card.Title>Competition in Your Position</Card.Title>
+                      <Bar 
+                        data={data.competition} 
+                        options={{
+                          responsive: true,
+                          plugins: {
+                            legend: {
+                              position: 'top',
+                              display: false
+                            },
+                            title: {
+                              display: true,
+                              text: 'Votes by Candidate'
+                            },
+                          },
+                          scales: {
+                            y: {
+                              beginAtZero: true,
+                              title: {
+                                display: true,
+                                text: 'Votes'
+                              }
+                            }
+                          }
+                        }}
+                      />
+                    </Card.Body>
+                  </Card>
+                </Col>
+              </Row>
+            </>
+          )}
+        </Container>
+      </div>
+      <Footer />
+    </div>
+  );
 };
 
 export default VotingStatistics;
