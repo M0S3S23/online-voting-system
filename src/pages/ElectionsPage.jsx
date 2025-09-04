@@ -66,16 +66,15 @@ const ElectionsPage = () => {
 
   // Fetch application statuses for all elections
   const fetchApplicationStatuses = async () => {
-    const token = localStorage.getItem('token');
-    if (!token) return;
-
     try {
-      const response = await fetch("http://localhost:3000/api/elections");
+      const response = await fetch("http://localhost:3000/api/elections", {
+        credentials: 'include' // Include session cookies
+      });
       if (!response.ok) return;
-      
+
       const electionsData = await response.json();
       const statuses = {};
-      
+
       // Check application status for each election
       await Promise.all(
         electionsData.map(async (election) => {
@@ -83,9 +82,7 @@ const ElectionsPage = () => {
             const statusResponse = await fetch(
               `http://localhost:3000/api/elections/${election._id}/application-status`,
               {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                },
+                credentials: 'include' // Include session cookies
               }
             );
             if (statusResponse.ok) {
@@ -93,12 +90,11 @@ const ElectionsPage = () => {
               statuses[election._id] = statusData;
             }
           } catch (err) {
-            // Ignore errors for individual status checks
-            console.log(`No application found for election ${election._id}`);
+            // Silently handle errors for individual elections
           }
         })
       );
-      
+
       setApplicationStatuses(statuses);
     } catch (err) {
       console.error("Error fetching application statuses:", err);
@@ -119,12 +115,17 @@ const ElectionsPage = () => {
 
   // Get button text and action based on application status
   const getApplicationButton = (election) => {
+    // Only show application buttons for upcoming elections
+    if (election.status !== 'upcoming') {
+      return null;
+    }
+
     const status = applicationStatuses[election._id];
-    
-    if (status && status.status !== 'not_found') {
+
+    if (status && status.status !== "not_found") {
       // User has already applied
       return (
-        <Link to={`/candidate/application-status`}>
+        <Link to={`/application-status/${election._id}`}>
           <Button variant="outline-success" size="sm">
             <ClipboardCheck className="me-1" size={16} />
             View Application Status
@@ -132,7 +133,7 @@ const ElectionsPage = () => {
         </Link>
       );
     }
-    
+
     // User hasn't applied yet - show apply button
     return (
       <Button
@@ -457,7 +458,7 @@ const ElectionsPage = () => {
 
       {/* Footer */}
       <Footer />
-      
+
       {/* Candidate Application Form Modal */}
       <CandidateApplicationForm
         show={showApplicationForm && selectedElection !== null}
