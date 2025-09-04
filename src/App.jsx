@@ -20,7 +20,11 @@ import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
-import NotificationsPage from './pages/NotificationsPage'; // ✅ merged in from feature branch
+import NotificationsPage from './pages/NotificationsPage';
+
+// ✅ Import your new error pages
+import ErrorPage from './pages/ErrorPage';
+import ServerError from './pages/ServerError';
 
 function App() {
   return (
@@ -41,7 +45,7 @@ function App() {
             <Route path="/elections/:id/positions/:positionId" element={<PositionBallotPage />} />
             <Route path="/elections/:id/vote" element={<VotingPage />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<NotificationsPage />} /> {/* ✅ keep this */}
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
 
             {/* Admin Routes */}
@@ -52,6 +56,10 @@ function App() {
             <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
             <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
             <Route path="/admin/results" element={<ElectionResults />} />
+
+            {/* Error Routes */}
+            <Route path="/500" element={<ServerError />} />
+            <Route path="*" element={<ErrorPage />} />
           </Routes>
         </BrowserRouter>
       </ElectionProvider>
