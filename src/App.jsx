@@ -1,43 +1,61 @@
 // App.jsx
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "./pages/HomePage";
-import SignInPage from "./pages/SignInPage";           // ← This is the Login Page
-import RegisterPage from "./pages/RegisterPage";       // ← This is the Sign Up Page
-import ResetPasswordPage from "./pages/ResetPasswordPage"; // ← Password Reset Page
-import VoterDashboard from "./pages/VoterDashboard";
-import ElectionsPage from "./pages/ElectionsPage";
-import ElectionDetailsPage from "./pages/ElectionDetailsPage";
-import PositionBallotPage from "./pages/PositionBallotPage";
-import VotingPage from "./pages/VotingPage";
-import Profile from "./pages/Profile";
-import ElectionResults from "./pages/ElectionResults";
-import NotificationsPage from './pages/NotificationsPage'; //  Notifications Page
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage';
+import SignInPage from './pages/SignInPage';
+import RegisterPage from './pages/RegisterPage';
+import VoterDashboard from './pages/VoterDashboard';
+import ElectionsPage from './pages/ElectionsPage';
+import VotingPage from './pages/VotingPage';
+import AdminDashboard from './pages/admin/dashboard';
+import AdminUsersPage from './pages/admin/users';
+import AdminSettingsPage from './pages/admin/AdminSettingsPage';
+import { UserProvider } from './contexts/UserContext';
+import CreateElectionPage from './pages/admin/CreateElectionPage';
+import ManageElectionPage from './pages/admin/ManageElectionPage';
+import { ElectionProvider } from './contexts/ElectionContext.jsx';
+import ResetPasswordPage from './pages/ResetPasswordPage.jsx';
+import ElectionDetailsPage from './pages/ElectionDetailsPage';
+import PositionBallotPage from './pages/PositionBallotPage';
+import ElectionResults from './pages/ElectionResults';
+import Profile from './pages/Profile';
+import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
+import ViewElectionPage from './pages/admin/ViewElectionPage';
+import NotificationsPage from './pages/NotificationsPage'; // ✅ merged in from feature branch
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<HomePage />} />
+    <UserProvider>
+      <ElectionProvider>
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<HomePage />} />
+            <Route path="/signin" element={<SignInPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/forgot-password" element={<ResetPasswordPage />} />
 
-        {/* Authentication Routes (Marion - Assignment #1) */}
-        <Route path="/signin" element={<SignInPage />} />           {/* Login */}
-        <Route path="/register" element={<RegisterPage />} />       {/* Sign Up */}
-        <Route path="/forgot-password" element={<ResetPasswordPage />} />
+            {/* Voter Routes */}
+            <Route path="/vdashboard" element={<VoterDashboard />} />
+            <Route path="/elections" element={<ElectionsPage />} />
+            <Route path="/elections/:id" element={<ElectionDetailsPage />} />
+            <Route path="/elections/:id/positions/:positionId" element={<PositionBallotPage />} />
+            <Route path="/elections/:id/vote" element={<VotingPage />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/notifications" element={<NotificationsPage />} /> {/* ✅ keep this */}
+            <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
 
-        {/* Voter Routes */}
-        <Route path="/vdashboard" element={<VoterDashboard />} />
-        <Route path="/elections" element={<ElectionsPage />} />
-        <Route path="/elections/:id" element={<ElectionDetailsPage />} />
-        <Route path="/elections/:id/positions/:positionId" element={<PositionBallotPage />} />
-        <Route path="/elections/:id/vote" element={<VotingPage />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/notifications" element={<NotificationsPage />} /> {/* ✅ Added Route */}
-
-        {/* Admin Routes */}
-        <Route path="/admin/results" element={<ElectionResults />} />
-      </Routes>
-    </BrowserRouter>
+            {/* Admin Routes */}
+            <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/users" element={<AdminUsersPage />} />
+            <Route path="/admin/elections" element={<CreateElectionPage />} />
+            <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
+            <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
+            <Route path="/admin/results" element={<ElectionResults />} />
+          </Routes>
+        </BrowserRouter>
+      </ElectionProvider>
+    </UserProvider>
   );
 }
 
