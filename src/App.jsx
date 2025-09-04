@@ -18,16 +18,14 @@ import ElectionDetailsPage from './pages/ElectionDetailsPage';
 import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
-import ApplicationStatus from './pages/candidate/ApplicationStatus';
+import ApplicationStatus from './pages/candidate/ApplicationStatus.jsx';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
-import CandidateDashboard from './pages/candidate/CandidateApplicationStatus.jsx';
-import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatusjsx';
+import CandidateDashboard from './pages/candidate/CandidateDashboard.jsx';
+import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus.jsx';
 import ElectionDetails from './pages/candidate/ElectionDetails.jsx';
 import ProfileManifesto from './pages/candidate/ProfileManifesto.jsx';
 import VotingStatistics from './pages/candidate/VotingStatistics.jsx';
-import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
 import ApplicationStatusPage from './pages/ApplicationStatusPage';
-import ViewElectionPage from './pages/admin/ViewElectionPage';
 import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
