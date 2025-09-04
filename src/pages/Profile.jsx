@@ -27,6 +27,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [user, setUser] = useState(null);
+  const [isCandidate, setIsCandidate] = useState(false);
+  const [candidateElections, setCandidateElections] = useState([]);
+
   const [editing, setEditing] = useState({ email: false, phone: false });
   const [draft, setDraft] = useState({ email: "", phone: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -45,6 +48,17 @@ const Profile = () => {
         const data = await res.json();
         setUser(data);
         setDraft({ email: data.email || "", phone: data.phone || "" });
+
+        // Check if user is a candidate
+        const candidateRes = await fetch(
+          "http://localhost:3000/api/users/is-candidate",
+          { credentials: "include" }
+        );
+        if (!candidateRes.ok) throw new Error("Failed to check candidate status");
+        const candidateData = await candidateRes.json();
+        setIsCandidate(candidateData.isCandidate);
+        setCandidateElections(candidateData.elections || []);
+
       } catch (err) {
         console.error("Profile load error:", err);
         setError("Failed to load profile. Please try again later.");
@@ -112,6 +126,17 @@ const Profile = () => {
               </small>
             </div>
           </Col>
+          <Col md="auto">
+                      {/* Show Candidate Dashboard button if user is a candidate */}
+                      {isCandidate && (
+                        <Button
+                          variant="info"
+                          // href="/candidate-dashboard"
+                        >
+                          Candidate Dashboard
+                        </Button>
+                      )}
+                    </Col>
         </Row>
       </Container>
     </div>
