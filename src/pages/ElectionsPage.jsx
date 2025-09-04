@@ -66,11 +66,10 @@ const ElectionsPage = () => {
 
   // Fetch application statuses for all elections
   const fetchApplicationStatuses = async () => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
     try {
-      const response = await fetch("http://localhost:3000/api/elections");
+      const response = await fetch("http://localhost:3000/api/elections", {
+        credentials: 'include' // Include session cookies
+      });
       if (!response.ok) return;
 
       const electionsData = await response.json();
@@ -83,9 +82,7 @@ const ElectionsPage = () => {
             const statusResponse = await fetch(
               `http://localhost:3000/api/elections/${election._id}/application-status`,
               {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
+                credentials: 'include' // Include session cookies
               }
             );
             if (statusResponse.ok) {
@@ -93,6 +90,7 @@ const ElectionsPage = () => {
               statuses[election._id] = statusData;
             }
           } catch (err) {
+            // Silently handle errors for individual elections
           }
         })
       );
@@ -127,7 +125,7 @@ const ElectionsPage = () => {
     if (status && status.status !== "not_found") {
       // User has already applied
       return (
-        <Link to={`/candidate/application-status`}>
+        <Link to={`/application-status/${election._id}`}>
           <Button variant="outline-success" size="sm">
             <ClipboardCheck className="me-1" size={16} />
             View Application Status

@@ -19,6 +19,7 @@ import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
+import ApplicationStatusPage from './pages/ApplicationStatusPage';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
 import NotificationsPage from './pages/NotificationsPage'; // ✅ merged in from feature branch
 
@@ -43,6 +44,7 @@ function App() {
             <Route path="/profile" element={<Profile />} />
             <Route path="/notifications" element={<NotificationsPage />} /> {/* ✅ keep this */}
             <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
+            <Route path="/application-status/:electionId" element={<ApplicationStatusPage />} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
