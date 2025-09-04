@@ -18,10 +18,17 @@ import ElectionDetailsPage from './pages/ElectionDetailsPage';
 import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
+import ApplicationStatus from './pages/candidate/ApplicationStatus';
+import ViewElectionPage from './pages/admin/ViewElectionPage';
+import CandidateDashboard from './pages/candidate/CandidateApplicationStatus.jsx';
+import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatusjsx';
+import ElectionDetails from './pages/candidate/ElectionDetails.jsx';
+import ProfileManifesto from './pages/candidate/ProfileManifesto.jsx';
+import VotingStatistics from './pages/candidate/VotingStatistics.jsx';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
 import ApplicationStatusPage from './pages/ApplicationStatusPage';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
-import NotificationsPage from './pages/NotificationsPage'; // ✅ merged in from feature branch
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   return (
@@ -42,7 +49,8 @@ function App() {
             <Route path="/elections/:id/positions/:positionId" element={<PositionBallotPage />} />
             <Route path="/elections/:id/vote" element={<VotingPage />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/notifications" element={<NotificationsPage />} /> {/* ✅ keep this */}
+            <Route path="/candidate/application-status" element={<ApplicationStatus />} />
+            <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
             <Route path="/application-status/:electionId" element={<ApplicationStatusPage />} />
 
@@ -53,6 +61,14 @@ function App() {
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
             <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
+
+            {/* Candidate Routes */}
+            <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+            <Route path="/candidate/application-status1" element={<CandidateApplicationStatus />} />
+            <Route path="/candidate/elections/:id/details" element={<ElectionDetails />} />
+            <Route path="/candidate/profile/manifesto" element={<ProfileManifesto />} />
+            <Route path="/candidate/voting-statistics" element={<VotingStatistics />} />
+
             <Route path="/admin/results" element={<ElectionResults />} />
           </Routes>
         </BrowserRouter>

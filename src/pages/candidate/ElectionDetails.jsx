@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Card, Nav, Button, ProgressBar, ListGroup } from "react-bootstrap";
+import React, { useState, useEffect } from "react";
+import { Container, Row, Col, Card, Nav, Button, ProgressBar, ListGroup, Spinner, Alert } from "react-bootstrap";
 import { Person, ClipboardCheck, FileEarmarkCheck, InfoCircle, Gear, BoxArrowRight, HouseDoor, Speedometer, CalendarEvent, ClockHistory } from "react-bootstrap-icons";
 import Sidebar from "../../components/Sidebar";
 
@@ -19,30 +19,44 @@ const theme = {
     pending: "#ffc107",
 };
 
-// Mock data for the election details
-const mockData = {
-    election: {
-        name: "Student Council Election 2024",
-        status: "Ongoing",
-        startDate: "October 1, 2025",
-        endDate: "October 31, 2025",
-        timeRemaining: "7 Days, 12 Hours",
-        registeredVoters: 1250,
-        votesCast: 847,
-        turnout: 67.8, // percentage
-    },
-    timeline: [
-        { title: "Candidate Registration Opens", date: "September 1, 2025", status: "completed" },
-        { title: "Candidate Vetting Period", date: "September 5, 2025", status: "completed" },
-        { title: "Campaigning Period", date: "September 15, 2025", status: "completed" },
-        { title: "Online Voting Begins", date: "October 1, 2025", status: "active" },
-        { title: "Online Voting Ends", date: "October 31, 2025", status: "upcoming" },
-        { title: "Results Announcement", date: "November 2, 2025", status: "upcoming" },
-    ],
-};
-
 const ElectionDetails = () => {
-    const [data] = useState(mockData);
+    const [data, setData] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchElectionDetails = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                if (!token) {
+                    setError("Authentication token not found. Please log in.");
+                    setLoading(false);
+                    return;
+                }
+
+                const response = await fetch("/api/elections/details", {
+                    method: "GET",
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                    },
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const result = await response.json();
+                setData(result);
+            } catch (err) {
+                setError("Failed to fetch election data. Please try again later.");
+                console.error("Fetch error:", err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchElectionDetails();
+    }, []);
 
     const getStatusVariant = (status) => {
         switch (status.toLowerCase()) {
@@ -59,6 +73,36 @@ const ElectionDetails = () => {
         }
     };
 
+    if (loading) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="d-flex justify-content-center align-items-center" style={{ minHeight: "100vh" }}>
+                <Alert variant="danger" className="w-50 text-center">
+                    {error}
+                </Alert>
+            </div>
+        );
+    }
+
+    // Since the API response format is different, we need to adapt the rendering logic
+    // The previous mock data structure is a placeholder, so we'll render based on the new backend data.
+    // The `ElectionDetails` component expects `election` and `timeline` objects.
+    // We will assume the backend provides the `election` object with all the details.
+    // The `timeline` part of the mock data is not provided by the backend, so we will use a placeholder or remove it.
+    
+    // We'll update the render logic to use the fetched 'data' object.
+    // Assuming the backend response directly contains all required fields.
+    const { name, status, startDate, endDate, timeRemaining, registeredVoters, votesCast, turnout, timeline } = data.election;
+
     return (
         <div className="d-flex" style={{ minHeight: "100vh", background: "#f4f6fa" }}>
             {/* Sidebar */}
@@ -70,7 +114,7 @@ const ElectionDetails = () => {
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h2 className="mb-0">Election Details</h2>
-                        <p className="text-muted">Information for the {data.election.name}</p>
+                        <p className="text-muted">Information for the {name}</p>
                     </div>
                 </div>
 
@@ -83,13 +127,13 @@ const ElectionDetails = () => {
                                     <div>
                                         <Card.Title>Voter Turnout</Card.Title>
                                         <Card.Text as="div">
-                                            <h3 className={`text-${getStatusVariant("completed")}`}>{data.election.turnout}%</h3>
+                                            <h3 className={`text-${getStatusVariant("completed")}`}>{turnout}%</h3>
                                         </Card.Text>
                                     </div>
                                     <Speedometer size={36} className={`text-${getStatusVariant("completed")}`} />
                                 </div>
                                 <ProgressBar
-                                    now={data.election.turnout}
+                                    now={turnout}
                                     variant={getStatusVariant("completed")}
                                     className="mt-3"
                                 />
@@ -103,7 +147,7 @@ const ElectionDetails = () => {
                                     <div>
                                         <Card.Title>Votes Cast</Card.Title>
                                         <Card.Text as="div">
-                                            <h3 style={{ color: theme.primary }}>{data.election.votesCast}</h3>
+                                            <h3 style={{ color: theme.primary }}>{votesCast}</h3>
                                         </Card.Text>
                                     </div>
                                     <ClipboardCheck size={36} color={theme.primary} />
@@ -118,7 +162,7 @@ const ElectionDetails = () => {
                                     <div>
                                         <Card.Title>Time Remaining</Card.Title>
                                         <Card.Text as="div">
-                                            <h3 style={{ color: theme.danger }}>{data.election.timeRemaining}</h3>
+                                            <h3 style={{ color: theme.danger }}>{timeRemaining}</h3>
                                         </Card.Text>
                                     </div>
                                     <ClockHistory size={36} color={theme.danger} />
@@ -137,7 +181,7 @@ const ElectionDetails = () => {
                             </Card.Header>
                             <Card.Body>
                                 <ListGroup variant="flush">
-                                    {data.timeline.map((item, index) => (
+                                    {timeline.map((item, index) => (
                                         <ListGroup.Item key={index} className="d-flex justify-content-between align-items-center">
                                             <div>
                                                 <CalendarEvent className="me-2" color={theme.primary} />
@@ -159,11 +203,11 @@ const ElectionDetails = () => {
                                 <h5 className="mb-0">Summary</h5>
                             </Card.Header>
                             <Card.Body>
-                                <p><strong>Election Name:</strong> {data.election.name}</p>
-                                <p><strong>Status:</strong> <span className={`badge bg-${getStatusVariant(data.election.status)}`}>{data.election.status}</span></p>
-                                <p><strong>Voting Period:</strong> {data.election.startDate} to {data.election.endDate}</p>
-                                <p><strong>Total Registered Voters:</strong> {data.election.registeredVoters}</p>
-                                <p><strong>Total Votes Cast:</strong> {data.election.votesCast}</p>
+                                <p><strong>Election Name:</strong> {name}</p>
+                                <p><strong>Status:</strong> <span className={`badge bg-${getStatusVariant(status)}`}>{status}</span></p>
+                                <p><strong>Voting Period:</strong> {startDate} to {endDate}</p>
+                                <p><strong>Total Registered Voters:</strong> {registeredVoters}</p>
+                                <p><strong>Total Votes Cast:</strong> {votesCast}</p>
                                 <Button variant="primary" className="mt-3">
                                     <InfoCircle className="me-2" />
                                     View Full Election Rules
