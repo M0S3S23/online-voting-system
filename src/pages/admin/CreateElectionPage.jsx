@@ -250,7 +250,12 @@ const CreateElectionPage = () => {
                             <td>{election.startDate?.substring(0, 10)}</td>
                             <td>{election.endDate?.substring(0, 10)}</td>
                             <td className="text-center">
-                              <Button variant="outline-primary" size="sm" className="me-2">
+                              <Button 
+                              variant="outline-primary" 
+                              size="sm" 
+                              className="me-2"
+                                onClick={() => navigate(`/admin/elections/${election._id}/view`)}
+                              >
                                 View Results
                               </Button>
                             </td>
