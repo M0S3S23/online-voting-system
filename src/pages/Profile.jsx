@@ -127,16 +127,16 @@ const Profile = () => {
             </div>
           </Col>
           <Col md="auto">
-                      {/* Show Candidate Dashboard button if user is a candidate */}
-                      {isCandidate && (
-                        <Button
-                          variant="info"
-                          // href="/candidate-dashboard"
-                        >
-                          Candidate Dashboard
-                        </Button>
-                      )}
-                    </Col>
+            {/* Show Candidate Dashboard button if user is a candidate */}
+            {isCandidate && (
+              <Button
+                variant="info"
+              // href="/candidate-dashboard"
+              >
+                Candidate Dashboard
+              </Button>
+            )}
+          </Col>
         </Row>
       </Container>
     </div>
