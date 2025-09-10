@@ -24,9 +24,9 @@ import CandidateDashboard from './pages/candidate/CandidateDashboard.jsx';
 import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus.jsx';
 import ElectionDetails from './pages/candidate/ElectionDetails.jsx';
 import ProfileManifesto from './pages/candidate/ProfileManifesto.jsx';
-import VotingStatistics from './pages/candidate/VotingStatistics.jsx';
 import ApplicationStatusPage from './pages/ApplicationStatusPage';
 import NotificationsPage from './pages/NotificationsPage';
+
 
 function App() {
   return (
@@ -65,7 +65,6 @@ function App() {
             <Route path="/candidate/application-status1" element={<CandidateApplicationStatus />} />
             <Route path="/candidate/elections/:id/details" element={<ElectionDetails />} />
             <Route path="/candidate/profile/manifesto" element={<ProfileManifesto />} />
-            <Route path="/candidate/voting-statistics" element={<VotingStatistics />} />
 
             <Route path="/admin/results" element={<ElectionResults />} />
           </Routes>
