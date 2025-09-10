@@ -9,24 +9,30 @@ const ViewElectionPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchElection = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(`http://localhost:3000/api/elections/${id}`, {
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to fetch election");
-      }
-      const data = await res.json();
-      setElection(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
+const fetchElection = async () => {
+  try {
+    setLoading(true);
+    const res = await fetch(`http://localhost:3000/api/elections/${id}`, {
+      credentials: "include",
+      method: "GET",
+      headers: { "Content-Type": "application/json" },
+    });
+
+    const data = await res.json(); // read body once
+
+    if (!res.ok) {
+      throw new Error(data.message || "Failed to fetch election");
     }
-  };
+
+    console.log(data);
+    setElection(data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchElection();

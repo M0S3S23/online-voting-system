@@ -19,8 +19,6 @@ const CandidateApplicationForm = ({ show, onHide, election, onApplicationSubmit 
     manifesto: "",
     position: "",
     poster: null,
-    fullName: "",
-    email: "",
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -78,29 +76,14 @@ const CandidateApplicationForm = ({ show, onHide, election, onApplicationSubmit 
       submitData.append('position', formData.position);
       submitData.append('electionId', election._id);
       
-      // Add user info if not authenticated
-      const token = localStorage.getItem('token');
-      if (!token) {
-        if (!formData.fullName || !formData.email) {
-          throw new Error("Please provide your full name and email");
-        }
-        submitData.append('fullName', formData.fullName);
-        submitData.append('email', formData.email);
-      }
       
       if (formData.poster) {
         submitData.append('poster', formData.poster);
       }
 
-      // Set headers with token if available
-      const headers = {};
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
-      }
-
       const response = await fetch(`http://localhost:3000/api/elections/${election._id}/apply`, {
         method: 'POST',
-        headers: headers,
+        credentials: 'include', // Include session cookies
         body: submitData,
       });
 
@@ -123,8 +106,6 @@ const CandidateApplicationForm = ({ show, onHide, election, onApplicationSubmit 
         manifesto: "",
         position: "",
         poster: null,
-        fullName: "",
-        email: "",
       });
 
       // Close modal after 2 seconds
@@ -168,38 +149,6 @@ const CandidateApplicationForm = ({ show, onHide, election, onApplicationSubmit 
         )}
 
         <Form onSubmit={handleSubmit}>
-          {/* User Information for non-authenticated users */}
-          {!localStorage.getItem('token') && (
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Full Name *</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleInputChange}
-                    placeholder="Enter your full name"
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Email Address *</Form.Label>
-                  <Form.Control
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    placeholder="Enter your email address"
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-          )}
-          
           <Row>
             <Col md={6}>
               <Form.Group className="mb-3">

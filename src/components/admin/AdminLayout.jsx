@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React from "react";
 import { Container } from "react-bootstrap";
 import AdminSidebar from "./AdminSidebar";
 import AdminNavbar from "./AdminNavbar";
+import { useTheme } from "../../contexts/ThemeContext"; // ✅ correct import
 
 const AdminLayout = ({ children }) => {
-  const [darkMode, setDarkMode] = useState(true); // central dark mode state
+  const { darkMode, toggleTheme } = useTheme(); // ✅ works now
 
   return (
     <div
@@ -22,7 +23,7 @@ const AdminLayout = ({ children }) => {
 
       {/* Main Area */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
-        <AdminNavbar darkMode={darkMode} toggleTheme={() => setDarkMode(prev => !prev)} />
+        <AdminNavbar darkMode={darkMode} toggleTheme={toggleTheme} />
 
         <Container
           fluid

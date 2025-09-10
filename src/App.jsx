@@ -18,16 +18,27 @@ import ElectionDetailsPage from './pages/ElectionDetailsPage';
 import PositionBallotPage from './pages/PositionBallotPage';
 import ElectionResults from './pages/ElectionResults';
 import Profile from './pages/Profile';
-import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus';
+import ApplicationStatus from './pages/candidate/ApplicationStatus.jsx';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
+
 import NotificationsPage from './pages/NotificationsPage';
 
 // ✅ Import your new error pages
 import ErrorPage from './pages/ErrorPage';
 import ServerError from './pages/ServerError';
+import CandidateDashboard from './pages/candidate/CandidateDashboard.jsx';
+import CandidateApplicationStatus from './pages/candidate/CandidateApplicationStatus.jsx';
+import ElectionDetails from './pages/candidate/ElectionDetails.jsx';
+import ProfileManifesto from './pages/candidate/ProfileManifesto.jsx';
+import ApplicationStatusPage from './pages/ApplicationStatusPage';
+import NotificationsPage from './pages/NotificationsPage';
+import { ThemeProvider } from "./contexts/ThemeContext";
+
+
 
 function App() {
   return (
+    <ThemeProvider>
     <UserProvider>
       <ElectionProvider>
         <BrowserRouter>
@@ -45,8 +56,10 @@ function App() {
             <Route path="/elections/:id/positions/:positionId" element={<PositionBallotPage />} />
             <Route path="/elections/:id/vote" element={<VotingPage />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/candidate/application-status" element={<ApplicationStatus />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/candidate/application-status" element={<CandidateApplicationStatus />} />
+            <Route path="/application-status/:electionId" element={<ApplicationStatusPage />} />
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminDashboard />} />
@@ -55,6 +68,13 @@ function App() {
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
             <Route path="/admin/elections/:electionId/manage" element={<ManageElectionPage />} />
             <Route path="/admin/elections/:id/view" element={<ViewElectionPage />} />
+
+            {/* Candidate Routes */}
+            <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+            <Route path="/candidate/application-status1" element={<CandidateApplicationStatus />} />
+            <Route path="/candidate/elections/:id/details" element={<ElectionDetails />} />
+            <Route path="/candidate/profile/manifesto" element={<ProfileManifesto />} />
+
             <Route path="/admin/results" element={<ElectionResults />} />
 
             {/* Error Routes */}
@@ -64,6 +84,7 @@ function App() {
         </BrowserRouter>
       </ElectionProvider>
     </UserProvider>
+    </ThemeProvider>
   );
 }
 

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useElection } from "../../contexts/ElectionContext";
 
 const CreateElectionPage = () => {
-  
+
   const [viewModal, setViewModal] = useState(false);
   const [viewElection, setViewElection] = useState(null);
 
@@ -199,13 +199,13 @@ const CreateElectionPage = () => {
                                 Manage
                               </Button>
                               <Button
-  variant="outline-primary"
-  size="sm"
-  className="me-2"
-  onClick={() => navigate(`/admin/elections/${election._id}/view`)}
->
-  View
-</Button>
+                                variant="outline-primary"
+                                size="sm"
+                                className="me-2"
+                                onClick={() => navigate(`/admin/elections/${election._id}/view`)}
+                              >
+                                View
+                              </Button>
 
 
                               <Button variant="outline-danger" size="sm" onClick={() => handleDelete(election._id)}>
@@ -250,7 +250,12 @@ const CreateElectionPage = () => {
                             <td>{election.startDate?.substring(0, 10)}</td>
                             <td>{election.endDate?.substring(0, 10)}</td>
                             <td className="text-center">
-                              <Button variant="outline-primary" size="sm" className="me-2">
+                              <Button 
+                              variant="outline-primary" 
+                              size="sm" 
+                              className="me-2"
+                                onClick={() => navigate(`/admin/elections/${election._id}/view`)}
+                              >
                                 View Results
                               </Button>
                             </td>
@@ -334,117 +339,117 @@ const CreateElectionPage = () => {
             </Modal>
 
 
-        {/* View Election Modal */}
-<Modal show={viewModal} onHide={() => setViewModal(false)} centered size="lg">
-  <Modal.Header closeButton className={headerClass}>
-    <Modal.Title>Election Details</Modal.Title>
-  </Modal.Header>
-  <Modal.Body style={{ background: cardBg, color: textColor }}>
-    {viewElection ? (
-      <>
-        {/* Basic Info */}
-        <h5 className="fw-bold">{viewElection.title}</h5>
-        <p className="text-muted">{viewElection.description}</p>
+            {/* View Election Modal */}
+            <Modal show={viewModal} onHide={() => setViewModal(false)} centered size="lg">
+              <Modal.Header closeButton className={headerClass}>
+                <Modal.Title>Election Details</Modal.Title>
+              </Modal.Header>
+              <Modal.Body style={{ background: cardBg, color: textColor }}>
+                {viewElection ? (
+                  <>
+                    {/* Basic Info */}
+                    <h5 className="fw-bold">{viewElection.title}</h5>
+                    <p className="text-muted">{viewElection.description}</p>
 
-        <Row className="mb-3">
-          <Col>
-            <strong>Status: </strong>
-            <Badge
-              bg={statusColor(viewElection.status)}
-              className="px-3 py-2 text-capitalize"
-            >
-              {viewElection.status}
-            </Badge>
-          </Col>
-        </Row>
+                    <Row className="mb-3">
+                      <Col>
+                        <strong>Status: </strong>
+                        <Badge
+                          bg={statusColor(viewElection.status)}
+                          className="px-3 py-2 text-capitalize"
+                        >
+                          {viewElection.status}
+                        </Badge>
+                      </Col>
+                    </Row>
 
-        <Row className="mb-3">
-          <Col>
-            <strong>Start Date:</strong>{" "}
-            {viewElection.startDate?.substring(0, 10)}
-          </Col>
-          <Col>
-            <strong>End Date:</strong>{" "}
-            {viewElection.endDate?.substring(0, 10)}
-          </Col>
-        </Row>
+                    <Row className="mb-3">
+                      <Col>
+                        <strong>Start Date:</strong>{" "}
+                        {viewElection.startDate?.substring(0, 10)}
+                      </Col>
+                      <Col>
+                        <strong>End Date:</strong>{" "}
+                        {viewElection.endDate?.substring(0, 10)}
+                      </Col>
+                    </Row>
 
-        {/* Positions Section */}
-        <h6 className="fw-bold mt-4">Positions</h6>
-        {viewElection.positions?.length > 0 ? (
-          <Table bordered size="sm" className="mt-2">
-            <thead>
-              <tr className={tableHeader}>
-                <th>Position</th>
-                <th>Seats</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              {viewElection.positions.map((pos, i) => (
-                <tr key={i}>
-                  <td>{pos.positionName}</td>
-                  <td>{pos.seats}</td>
-                  <td>{pos.description}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
-          <p className="text-muted">No positions added yet.</p>
-        )}
+                    {/* Positions Section */}
+                    <h6 className="fw-bold mt-4">Positions</h6>
+                    {viewElection.positions?.length > 0 ? (
+                      <Table bordered size="sm" className="mt-2">
+                        <thead>
+                          <tr className={tableHeader}>
+                            <th>Position</th>
+                            <th>Seats</th>
+                            <th>Description</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {viewElection.positions.map((pos, i) => (
+                            <tr key={i}>
+                              <td>{pos.positionName}</td>
+                              <td>{pos.seats}</td>
+                              <td>{pos.description}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    ) : (
+                      <p className="text-muted">No positions added yet.</p>
+                    )}
 
-        {/* Candidates Section */}
-        <h6 className="fw-bold mt-4">Candidates</h6>
-        {viewElection.candidates?.length > 0 ? (
-          <Table bordered hover responsive size="sm" className="mt-2">
-            <thead>
-              <tr className={tableHeader}>
-                <th>Name / User ID</th>
-                <th>Party</th>
-                <th>Position</th>
-                <th>Approved</th>
-              </tr>
-            </thead>
-            <tbody>
-              {viewElection.candidates.map((c, i) => (
-                <tr key={i}>
-                  <td>{c.userId}</td> {/* Ideally you'd populate with user's name */}
-                  <td>{c.party}</td>
-                  <td>{c.position}</td>
-                  <td>
-                    <Badge bg={c.approved ? "success" : "warning"}>
-                      {c.approved ? "Approved" : "Pending"}
-                    </Badge>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        ) : (
-          <p className="text-muted">No candidates yet.</p>
-        )}
+                    {/* Candidates Section */}
+                    <h6 className="fw-bold mt-4">Candidates</h6>
+                    {viewElection.candidates?.length > 0 ? (
+                      <Table bordered hover responsive size="sm" className="mt-2">
+                        <thead>
+                          <tr className={tableHeader}>
+                            <th>Name / User ID</th>
+                            <th>Party</th>
+                            <th>Position</th>
+                            <th>Approved</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {viewElection.candidates.map((c, i) => (
+                            <tr key={i}>
+                              <td>{c.userId}</td> {/* Ideally you'd populate with user's name */}
+                              <td>{c.party}</td>
+                              <td>{c.position}</td>
+                              <td>
+                                <Badge bg={c.approved ? "success" : "warning"}>
+                                  {c.approved ? "Approved" : "Pending"}
+                                </Badge>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    ) : (
+                      <p className="text-muted">No candidates yet.</p>
+                    )}
 
-        {/* Votes Section */}
-        <h6 className="fw-bold mt-4">Votes</h6>
-        {viewElection.votes?.length > 0 ? (
-          <p>
-            <strong>Total Votes:</strong> {viewElection.votes.length}
-          </p>
-        ) : (
-          <p className="text-muted">No votes recorded yet.</p>
-        )}
-      </>
-    ) : (
-      <p>No election selected.</p>
-    )}
-  </Modal.Body>
-  <Modal.Footer style={{ background: cardBg }}>
-    <Button variant="secondary" onClick={() => setViewModal(false)}>
-      Close
-    </Button>
-  </Modal.Footer>
-</Modal>
+                    {/* Votes Section */}
+                    <h6 className="fw-bold mt-4">Votes</h6>
+                    {viewElection.votes?.length > 0 ? (
+                      <p>
+                        <strong>Total Votes:</strong> {viewElection.votes.length}
+                      </p>
+                    ) : (
+                      <p className="text-muted">No votes recorded yet.</p>
+                    )}
+                  </>
+                ) : (
+                  <p>No election selected.</p>
+                )}
+              </Modal.Body>
+              <Modal.Footer style={{ background: cardBg }}>
+                <Button variant="secondary" onClick={() => setViewModal(false)}>
+                  Close
+                </Button>
+              </Modal.Footer>
+            </Modal>
 
 
           </div>
