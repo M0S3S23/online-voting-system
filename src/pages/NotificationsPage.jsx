@@ -9,6 +9,9 @@ import './NotificationsPage.css';
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const data = await NotificationAPI.getNotifications();
+setNotifications(data);
+
 
   useEffect(() => {
     const loadNotifications = async () => {
