@@ -26,10 +26,12 @@ import ElectionDetails from './pages/candidate/ElectionDetails.jsx';
 import ProfileManifesto from './pages/candidate/ProfileManifesto.jsx';
 import ApplicationStatusPage from './pages/ApplicationStatusPage';
 import NotificationsPage from './pages/NotificationsPage';
+import { ThemeProvider } from "./contexts/ThemeContext";
 
 
 function App() {
   return (
+    <ThemeProvider>
     <UserProvider>
       <ElectionProvider>
         <BrowserRouter>
@@ -71,6 +73,7 @@ function App() {
         </BrowserRouter>
       </ElectionProvider>
     </UserProvider>
+    </ThemeProvider>
   );
 }
 
