@@ -21,7 +21,7 @@ import Profile from './pages/Profile';
 import ApplicationStatus from './pages/candidate/ApplicationStatus.jsx';
 import ViewElectionPage from './pages/admin/ViewElectionPage';
 
-import NotificationsPage from './pages/NotificationsPage';
+// import NotificationsPage from './pages/NotificationsPage';
 
 // ✅ Import your new error pages
 import ErrorPage from './pages/ErrorPage';
